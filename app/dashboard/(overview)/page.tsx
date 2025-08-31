@@ -9,6 +9,15 @@ import {
   CardsSkeleton,
 } from "@/app/ui/skeletons";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: false,
+    default: "Dashboard",
+  },
+};
+
 export default async function Page() {
   return (
     <main>
