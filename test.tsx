@@ -1,19 +1,3 @@
-import Image from "next/image";
-
-<div>
-  {/* Add Hero Images Here */}
-  <Image
-    src="/hero-desktop.png"
-    width={500}
-    height={380}
-    className="hidden md:block"
-    alt="Screenshots of the dashboard project showing desktop version"
-  />
-  <Image
-    src="/hero-mobile.png"
-    width={560}
-    height={620}
-    className="block md:hidden"
-    alt="Screenshot of the dashboard project showing mobile version"
-  />
-</div>;
+let numbers: number[] = [1, 2, 3];
+let fruits: Array<string> = ["apple", "banana"];
+let mixed: (string | number)[] = ["one", 2, "three"];
