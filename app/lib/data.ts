@@ -169,14 +169,18 @@ export async function fetchInvoiceById(id: string) {
 export async function fetchCustomers() {
   try {
     const customers = await sql<CustomerField[]>`
-      SELECT
-        id,
-        name,
-        email,
-        image_url
-      FROM customers
-      ORDER BY name ASC
-    `;
+        SELECT
+          id,
+          name,
+          email,
+          image_url,
+          status,
+          phone,
+          company,
+          location
+        FROM customers
+        ORDER BY name ASC
+      `;
 
     return customers;
   } catch (err) {

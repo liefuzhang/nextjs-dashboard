@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import postgres from "postgres";
-import { invoices, customers, revenue, users } from "../lib/placeholder-data";
+import { invoices, customers, revenue, users } from "../../lib/placeholder-data";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -58,20 +58,26 @@ async function seedInvoices() {
 async function seedCustomers() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
+  await sql`DROP TABLE customers`;
+
   await sql`
     CREATE TABLE IF NOT EXISTS customers (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       email VARCHAR(255) NOT NULL,
-      image_url VARCHAR(255) NOT NULL
+      image_url VARCHAR(255) NOT NULL,
+      status VARCHAR(10) DEFAULT 'active',
+      phone VARCHAR(20),
+      company VARCHAR(100),
+      location VARCHAR(100)
     );
   `;
 
   const insertedCustomers = await Promise.all(
     customers.map(
       (customer) => sql`
-        INSERT INTO customers (id, name, email, image_url)
-        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
+        INSERT INTO customers (id, name, email, image_url, status, phone, company, location)
+        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url}, ${customer.status}, ${customer.phone}, ${customer.company}, ${customer.location})
         ON CONFLICT (id) DO NOTHING;
       `
     )
@@ -104,8 +110,8 @@ async function seedRevenue() {
 export async function GET() {
   try {
     const result = await sql.begin((sql) => [
-      seedUsers(),
-      // seedCustomers(),
+      //seedUsers(),
+      seedCustomers(),
       // seedInvoices(),
       // seedRevenue(),
     ]);

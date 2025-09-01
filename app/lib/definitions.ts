@@ -14,6 +14,10 @@ export type Customer = {
   name: string;
   email: string;
   image_url: string;
+  status: "active" | "inactive";
+  phone: string;
+  company: string;
+  location: string;
 };
 
 export type Invoice = {
@@ -80,6 +84,10 @@ export type CustomerField = {
   name: string;
   email: string;
   image_url: string;
+  status: "active" | "inactive";
+  phone: string;
+  company: string;
+  location: string;
 };
 
 export type InvoiceForm = {

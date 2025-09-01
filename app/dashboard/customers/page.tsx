@@ -1,5 +1,8 @@
 import { fetchCustomers } from "@/app/lib/data";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 export default async function Page() {
   const customers = await fetchCustomers();
@@ -7,26 +10,42 @@ export default async function Page() {
   return (
     <div className="container mx-auto gap-6 p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {customers.map((customer) => (
-        <div
-          className=" bg-white border rounded-lg shadow-md p-4 
-          hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer
-          flex items-center gap-4"
-          key={customer.id}
-        >
-          <div>
-            <img
-              src={customer.image_url}
-              alt="User Image"
-              className="w-12 h-12 rounded-full"
-            ></img>
-          </div>
-          <div>
-            <div className="text-lg font-bold text-gray-800">
-              {customer.name}
+        <Card className="hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer">
+          <CardContent className="p-6">
+            <div className="flex items-start gap-4">
+              <Avatar className="w-16 h-16">
+                <AvatarImage src={customer.image_url} alt={customer.name} />
+                <AvatarFallback>
+                  {customer.name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">{customer.name}</h3>
+                  <Badge
+                    variant={
+                      customer.status === "active" ? "default" : "secondary"
+                    }
+                  >
+                    {customer.status}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {customer.email}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {customer.phone}
+                </p>
+                <div className="pt-2">
+                  <p className="text-sm font-medium">{customer.company}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {customer.location}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="text-sm text-gray-600">{customer.email}</div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       ))}
 
       <Button>Add Customer</Button>
