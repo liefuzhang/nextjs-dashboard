@@ -1,4 +1,5 @@
 import { fetchCustomers } from "@/app/lib/data";
+import { Button } from "@/components/ui/button";
 
 export default async function Page() {
   const customers = await fetchCustomers();
@@ -27,6 +28,10 @@ export default async function Page() {
           </div>
         </div>
       ))}
+
+      <Button>Add Customer</Button>
+      <Button variant="destructive">Delete</Button>
+      <Button variant="warning">Warning</Button>
     </div>
   );
 }

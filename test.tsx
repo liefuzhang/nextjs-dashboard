@@ -1,3 +1,9 @@
-let numbers: number[] = [1, 2, 3];
-let fruits: Array<string> = ["apple", "banana"];
-let mixed: (string | number)[] = ["one", 2, "three"];
+import { Button } from "@/components/ui/button";
+
+export default function Home() {
+  return (
+    <div>
+      <Button>Create User</Button>
+    </div>
+  );
+}
