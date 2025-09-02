@@ -14,8 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ChevronUp, ChevronDown } from 'lucide-react'
-import { EditCustomerModal, DeleteCustomerModal } from './customer-modals'
+import { ChevronUp, ChevronDown, MoreHorizontal, Eye, Edit, Trash2, Mail, Phone } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 type SortColumn = 'name' | 'email' | 'company' | 'status'
 type SortDirection = 'asc' | 'desc'
@@ -33,12 +40,21 @@ const SortIcon = ({ column, currentSort, direction }: {
     <ChevronDown className="w-4 h-4 ml-2" />
 }
 
-export default function CustomersTable({ customers }: { customers: CustomerField[] }) {
+interface CustomersTableProps {
+  customers: CustomerField[]
+  onView: (customer: CustomerField) => void
+  onEdit: (customer: CustomerField) => void
+  onDelete: (customer: CustomerField) => void
+}
+
+export default function CustomersTable({ 
+  customers, 
+  onView, 
+  onEdit, 
+  onDelete 
+}: CustomersTableProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
-  const [editModalOpen, setEditModalOpen] = useState(false)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerField | null>(null)
   
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -51,20 +67,6 @@ export default function CustomersTable({ customers }: { customers: CustomerField
     }
   }
 
-  // Action handlers
-  const handleView = (customer: CustomerField) => {
-    console.log('View customer:', customer.name)
-  }
-
-  const handleEdit = (customer: CustomerField) => {
-    setSelectedCustomer(customer)
-    setEditModalOpen(true)
-  }
-
-  const handleDelete = (customer: CustomerField) => {
-    setSelectedCustomer(customer)
-    setDeleteModalOpen(true)
-  }
 
   // Sort customers based on current sort column and direction
   const sortedCustomers = [...customers].sort((a, b) => {
@@ -176,47 +178,51 @@ export default function CustomersTable({ customers }: { customers: CustomerField
               </Badge>
             </TableCell>
             <TableCell>
-              <div className="flex items-center gap-2">
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => handleView(customer)}
-                >
-                  View
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="default"
-                  onClick={() => handleEdit(customer)}
-                >
-                  Edit
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="destructive"
-                  onClick={() => handleDelete(customer)}
-                >
-                  Delete
-                </Button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => onView(customer)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    View details
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => onEdit(customer)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit customer
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => window.open(`mailto:${customer.email}`, '_blank')}
+                  >
+                    <Mail className="mr-2 h-4 w-4" />
+                    Send email
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => window.open(`tel:${customer.phone}`, '_self')}
+                  >
+                    <Phone className="mr-2 h-4 w-4" />
+                    Call customer
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={() => onDelete(customer)}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete customer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </TableCell>
           </TableRow>
         ))}
       </TableBody>
     </Table>
-    
-    {/* Modal components */}
-    <EditCustomerModal
-      open={editModalOpen}
-      onOpenChange={setEditModalOpen}
-      customer={selectedCustomer}
-    />
-    
-    <DeleteCustomerModal
-      open={deleteModalOpen}
-      onOpenChange={setDeleteModalOpen}
-      customer={selectedCustomer}
-    />
   </div>
   )
 }
