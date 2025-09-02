@@ -3,22 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { CustomerField } from "@/app/lib/definitions";
 import SearchInput from "./search-input";
+import CustomersTable from "./customers-table";
 
-export default async function Page({ 
-  searchParams 
+export default async function Page({
+  searchParams,
 }: {
-  searchParams: { search?: string }
+  searchParams: { search?: string };
 }) {
   const customers = await fetchCustomers();
   const search = searchParams.search || "";
@@ -86,50 +78,7 @@ export default async function Page({
         <SearchInput />
       </div>
 
-      <div>
-        <Table>
-          <TableCaption>A list of customers.</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Avatar</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredCustomers.map((customer) => (
-              <TableRow key={customer.id}>
-                <TableCell>
-                  <Avatar className="w-16 h-16">
-                    <AvatarImage src={customer.image_url} alt={customer.name} />
-                    <AvatarFallback>
-                      {customer.name.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </TableCell>
-                <TableCell>{customer.name}</TableCell>
-                <TableCell>{customer.email}</TableCell>
-                <TableCell>{customer.phone}</TableCell>
-                <TableCell>{customer.company}</TableCell>
-                <TableCell>{customer.location}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      customer.status === "active" ? "default" : "secondary"
-                    }
-                  >
-                    {customer.status}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <CustomersTable customers={filteredCustomers} />
     </div>
   );
 }
