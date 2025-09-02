@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ChevronUp, ChevronDown } from 'lucide-react'
+import { EditCustomerModal, DeleteCustomerModal } from './customer-modals'
 
 type SortColumn = 'name' | 'email' | 'company' | 'status'
 type SortDirection = 'asc' | 'desc'
@@ -35,6 +36,9 @@ const SortIcon = ({ column, currentSort, direction }: {
 export default function CustomersTable({ customers }: { customers: CustomerField[] }) {
   const [sortColumn, setSortColumn] = useState<SortColumn>('name')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerField | null>(null)
   
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
@@ -53,11 +57,13 @@ export default function CustomersTable({ customers }: { customers: CustomerField
   }
 
   const handleEdit = (customer: CustomerField) => {
-    console.log('Edit customer:', customer.name)
+    setSelectedCustomer(customer)
+    setEditModalOpen(true)
   }
 
   const handleDelete = (customer: CustomerField) => {
-    console.log('Delete customer:', customer.name)
+    setSelectedCustomer(customer)
+    setDeleteModalOpen(true)
   }
 
   // Sort customers based on current sort column and direction
@@ -97,6 +103,7 @@ export default function CustomersTable({ customers }: { customers: CustomerField
   })
 
   return (
+    <div>
     <Table>
       <TableCaption>A list of customers.</TableCaption>
       <TableHeader>
@@ -197,5 +204,19 @@ export default function CustomersTable({ customers }: { customers: CustomerField
         ))}
       </TableBody>
     </Table>
+    
+    {/* Modal components */}
+    <EditCustomerModal
+      open={editModalOpen}
+      onOpenChange={setEditModalOpen}
+      customer={selectedCustomer}
+    />
+    
+    <DeleteCustomerModal
+      open={deleteModalOpen}
+      onOpenChange={setDeleteModalOpen}
+      customer={selectedCustomer}
+    />
+  </div>
   )
 }

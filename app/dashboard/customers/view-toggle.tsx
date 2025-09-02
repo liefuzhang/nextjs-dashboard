@@ -5,13 +5,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
 import { CustomerField } from "@/app/lib/definitions"
 import CustomersTable from "./customers-table"
+import { AddCustomerModal } from "./customer-modals"
+import { Plus } from 'lucide-react'
 
 type ViewType = 'cards' | 'table'
 
 export default function ViewToggle({ customers }: { customers: CustomerField[] }) {
   const [viewType, setViewType] = useState<ViewType>('cards')
+  const [addModalOpen, setAddModalOpen] = useState(false)
 
   // Load saved preference from localStorage
   useEffect(() => {
@@ -44,6 +48,11 @@ export default function ViewToggle({ customers }: { customers: CustomerField[] }
             Table
           </span>
         </div>
+        
+        <Button onClick={() => setAddModalOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Customer
+        </Button>
       </div>
 
       {/* Conditional rendering */}
@@ -91,6 +100,12 @@ export default function ViewToggle({ customers }: { customers: CustomerField[] }
       ) : (
         <CustomersTable customers={customers} />
       )}
+      
+      {/* Add Customer Modal */}
+      <AddCustomerModal
+        open={addModalOpen}
+        onOpenChange={setAddModalOpen}
+      />
     </div>
   )
 }
