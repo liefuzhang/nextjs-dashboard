@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from 'react'
+import { toast } from "sonner"
 import { CustomerField } from "@/app/lib/definitions"
 import {
   Dialog,
@@ -98,9 +99,11 @@ export function DeleteCustomerModal({ open, onOpenChange, customer }: DeleteCust
     setIsLoading(true)
     try {
       await deleteCustomer(customer.id)
+      toast.success(`${customer.name} has been deleted successfully.`)
       onOpenChange(false)
     } catch (error) {
       console.error('Failed to delete customer:', error)
+      toast.error("Failed to delete customer. Please try again.")
     } finally {
       setIsLoading(false)
     }
