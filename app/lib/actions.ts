@@ -159,7 +159,10 @@ export async function authenticate(
 }
 
 // Customer server actions
-export async function createCustomer(prevState: CustomerState, formData: FormData) {
+export async function createCustomer(
+  prevState: CustomerState,
+  formData: FormData
+) {
   // Validate form using Zod
   const validatedFields = CreateCustomer.safeParse({
     name: formData.get("name"),
@@ -188,13 +191,16 @@ export async function createCustomer(prevState: CustomerState, formData: FormDat
   }
 
   // Prepare data for insertion into the database
-  const { name, email, phone, company, location, status, image_url } = validatedFields.data;
+  const { name, email, phone, company, location, status, image_url } =
+    validatedFields.data;
 
   // Insert data into the database
   try {
     await sql`
       INSERT INTO customers (name, email, image_url, status, phone, company, location)
-      VALUES (${name}, ${email}, ${image_url || "/customers/default.png"}, ${status}, ${phone}, ${company}, ${location})
+      VALUES (${name}, ${email}, ${
+      image_url || "/customers/default.png"
+    }, ${status}, ${phone}, ${company}, ${location})
     `;
   } catch (error) {
     // If a database error occurs, return a more specific error
@@ -208,7 +214,11 @@ export async function createCustomer(prevState: CustomerState, formData: FormDat
   redirect("/dashboard/customers");
 }
 
-export async function updateCustomer(id: string, prevState: CustomerState, formData: FormData) {
+export async function updateCustomer(
+  id: string,
+  prevState: CustomerState,
+  formData: FormData
+) {
   // Validate form using Zod
   const validatedFields = UpdateCustomer.safeParse({
     name: formData.get("name"),
@@ -217,7 +227,6 @@ export async function updateCustomer(id: string, prevState: CustomerState, formD
     company: formData.get("company"),
     location: formData.get("location"),
     status: formData.get("status"),
-    image_url: formData.get("image_url"),
   });
 
   // If form validation fails, return errors early
@@ -237,13 +246,14 @@ export async function updateCustomer(id: string, prevState: CustomerState, formD
   }
 
   // Prepare data for update
-  const { name, email, phone, company, location, status, image_url } = validatedFields.data;
+  const { name, email, phone, company, location, status } =
+    validatedFields.data;
 
   try {
     await sql`
       UPDATE customers
       SET name = ${name}, email = ${email}, phone = ${phone}, company = ${company}, 
-          location = ${location}, status = ${status}, image_url = ${image_url || "/customers/default.png"}
+          location = ${location}, status = ${status}
       WHERE id = ${id}
     `;
   } catch (error) {

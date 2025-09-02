@@ -69,7 +69,7 @@ export function EditCustomerModal({ open, onOpenChange, customer }: EditCustomer
         <DialogHeader>
           <DialogTitle>Edit Customer</DialogTitle>
           <DialogDescription>
-            Update {customer?.name}'s information.
+            Update {customer?.name}&apos;s information.
           </DialogDescription>
         </DialogHeader>
         {customer && (
