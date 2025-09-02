@@ -10,10 +10,11 @@ import CustomersTable from "./customers-table";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { search?: string };
+  searchParams: Promise<{ search?: string }>;
 }) {
   const customers = await fetchCustomers();
-  const search = searchParams.search || "";
+  const resolvedSearchParams = await searchParams;
+  const search = resolvedSearchParams.search || "";
 
   const filteredCustomers = customers.filter((customer) => {
     const searchLower = search.toLowerCase();
@@ -29,7 +30,7 @@ export default async function Page({
     <div>
       <div className="container mx-auto gap-6 p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {filteredCustomers.map((customer) => (
-          <Card className="hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer">
+          <Card key={customer.id} className="hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <Avatar className="w-16 h-16">
