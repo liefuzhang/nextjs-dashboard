@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { CustomerField } from "@/app/lib/definitions"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -44,6 +45,19 @@ export default function CustomersTable({ customers }: { customers: CustomerField
       setSortColumn(column)
       setSortDirection('asc')
     }
+  }
+
+  // Action handlers
+  const handleView = (customer: CustomerField) => {
+    console.log('View customer:', customer.name)
+  }
+
+  const handleEdit = (customer: CustomerField) => {
+    console.log('Edit customer:', customer.name)
+  }
+
+  const handleDelete = (customer: CustomerField) => {
+    console.log('Delete customer:', customer.name)
   }
 
   // Sort customers based on current sort column and direction
@@ -126,6 +140,7 @@ export default function CustomersTable({ customers }: { customers: CustomerField
               <SortIcon column="status" currentSort={sortColumn} direction={sortDirection} />
             </div>
           </TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -152,6 +167,31 @@ export default function CustomersTable({ customers }: { customers: CustomerField
               >
                 {customer.status}
               </Badge>
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => handleView(customer)}
+                >
+                  View
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="default"
+                  onClick={() => handleEdit(customer)}
+                >
+                  Edit
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="destructive"
+                  onClick={() => handleDelete(customer)}
+                >
+                  Delete
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
