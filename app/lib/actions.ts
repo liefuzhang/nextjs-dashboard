@@ -62,6 +62,14 @@ export type CustomerState = {
     status?: string[];
   };
   message?: string | null;
+  values?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    company?: string;
+    location?: string;
+    status?: string;
+  };
 };
 
 export async function createInvoice(prevState: State, formData: FormData) {
@@ -168,6 +176,14 @@ export async function createCustomer(prevState: CustomerState, formData: FormDat
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing Fields. Failed to Create Customer.",
+      values: {
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+        company: formData.get("company") as string,
+        location: formData.get("location") as string,
+        status: formData.get("status") as string,
+      },
     };
   }
 
@@ -209,6 +225,14 @@ export async function updateCustomer(id: string, prevState: CustomerState, formD
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: "Missing Fields. Failed to Update Customer.",
+      values: {
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+        company: formData.get("company") as string,
+        location: formData.get("location") as string,
+        status: formData.get("status") as string,
+      },
     };
   }
 

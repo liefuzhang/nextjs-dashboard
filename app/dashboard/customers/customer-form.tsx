@@ -39,6 +39,16 @@ export default function CustomerForm({
   const initialState: CustomerState = { message: null, errors: {} }
   const updateCustomerWithId = customer ? updateCustomer.bind(null, customer.id) : createCustomer
   const [state, dispatch] = useFormState(updateCustomerWithId, initialState)
+  
+  // Use values from server state if available (after validation error), otherwise use customer data
+  const formValues = state.values || {
+    name: customer?.name || "",
+    email: customer?.email || "",
+    phone: customer?.phone || "",
+    company: customer?.company || "",
+    location: customer?.location || "",
+    status: customer?.status || "active",
+  }
 
   useEffect(() => {
     if (state.message === null && Object.keys(state.errors || {}).length === 0 && onSuccess) {
@@ -49,7 +59,7 @@ export default function CustomerForm({
   }, [state, onSuccess])
 
   return (
-    <form action={dispatch} className="space-y-6">
+    <form action={dispatch} className="space-y-6" key={state.message || "form"}>
       {/* Personal Information Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Personal Information</h3>
@@ -61,7 +71,7 @@ export default function CustomerForm({
             name="name"
             type="text"
             placeholder="Enter customer name"
-            defaultValue={customer?.name || ""}
+            defaultValue={formValues.name}
             aria-describedby="name-error"
           />
           <div id="name-error" aria-live="polite" aria-atomic="true">
@@ -81,7 +91,7 @@ export default function CustomerForm({
             name="email"
             type="email"
             placeholder="Enter email address"
-            defaultValue={customer?.email || ""}
+            defaultValue={formValues.email}
             aria-describedby="email-error"
           />
           <div id="email-error" aria-live="polite" aria-atomic="true">
@@ -101,7 +111,7 @@ export default function CustomerForm({
             name="phone"
             type="text"
             placeholder="Enter phone number"
-            defaultValue={customer?.phone || ""}
+            defaultValue={formValues.phone}
             aria-describedby="phone-error"
           />
           <div id="phone-error" aria-live="polite" aria-atomic="true">
@@ -126,7 +136,7 @@ export default function CustomerForm({
             name="company"
             type="text"
             placeholder="Enter company name"
-            defaultValue={customer?.company || ""}
+            defaultValue={formValues.company}
             aria-describedby="company-error"
           />
           <div id="company-error" aria-live="polite" aria-atomic="true">
@@ -146,7 +156,7 @@ export default function CustomerForm({
             name="location"
             type="text"
             placeholder="Enter location"
-            defaultValue={customer?.location || ""}
+            defaultValue={formValues.location}
             aria-describedby="location-error"
           />
           <div id="location-error" aria-live="polite" aria-atomic="true">
@@ -161,7 +171,7 @@ export default function CustomerForm({
 
         <div>
           <Label htmlFor="status">Status</Label>
-          <Select name="status" defaultValue={customer?.status || "active"}>
+          <Select name="status" defaultValue={formValues.status}>
             <SelectTrigger>
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
