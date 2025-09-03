@@ -2,6 +2,7 @@
 
 import { useFormState, useFormStatus } from 'react-dom'
 import { useEffect } from 'react'
+import { Loader2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -26,8 +27,159 @@ function SubmitButton() {
   
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Saving..." : "Save Customer"}
+      {pending ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Saving...
+        </>
+      ) : (
+        "Save Customer"
+      )}
     </Button>
+  )
+}
+
+function FormFields({ formValues, state }: { formValues: any, state: CustomerState }) {
+  const { pending } = useFormStatus()
+  
+  return (
+    <>
+      {/* Personal Information Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium">Personal Information</h3>
+        
+        <div>
+          <Label htmlFor="name">Name *</Label>
+          <Input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Enter customer name"
+            defaultValue={formValues.name}
+            disabled={pending}
+            aria-describedby="name-error"
+          />
+          <div id="name-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.name &&
+              state.errors.name.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="email">Email *</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter email address"
+            defaultValue={formValues.email}
+            disabled={pending}
+            aria-describedby="email-error"
+          />
+          <div id="email-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.email &&
+              state.errors.email.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="phone">Phone</Label>
+          <Input
+            id="phone"
+            name="phone"
+            type="text"
+            placeholder="Enter phone number"
+            defaultValue={formValues.phone}
+            disabled={pending}
+            aria-describedby="phone-error"
+          />
+          <div id="phone-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.phone &&
+              state.errors.phone.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Business Information Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-medium">Business Information</h3>
+        
+        <div>
+          <Label htmlFor="company">Company</Label>
+          <Input
+            id="company"
+            name="company"
+            type="text"
+            placeholder="Enter company name"
+            defaultValue={formValues.company}
+            disabled={pending}
+            aria-describedby="company-error"
+          />
+          <div id="company-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.company &&
+              state.errors.company.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="location">Location</Label>
+          <Input
+            id="location"
+            name="location"
+            type="text"
+            placeholder="Enter location"
+            defaultValue={formValues.location}
+            disabled={pending}
+            aria-describedby="location-error"
+          />
+          <div id="location-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.location &&
+              state.errors.location.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="status">Status</Label>
+          <Select name="status" defaultValue={formValues.status} disabled={pending}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+          <div id="status-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.status &&
+              state.errors.status.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -60,136 +212,7 @@ export default function CustomerForm({
 
   return (
     <form action={dispatch} className="space-y-6" key={state.message || "form"}>
-      {/* Personal Information Section */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Personal Information</h3>
-        
-        <div>
-          <Label htmlFor="name">Name *</Label>
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            placeholder="Enter customer name"
-            defaultValue={formValues.name}
-            aria-describedby="name-error"
-          />
-          <div id="name-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.name &&
-              state.errors.name.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="email">Email *</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="Enter email address"
-            defaultValue={formValues.email}
-            aria-describedby="email-error"
-          />
-          <div id="email-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.email &&
-              state.errors.email.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="phone">Phone</Label>
-          <Input
-            id="phone"
-            name="phone"
-            type="text"
-            placeholder="Enter phone number"
-            defaultValue={formValues.phone}
-            aria-describedby="phone-error"
-          />
-          <div id="phone-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.phone &&
-              state.errors.phone.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Business Information Section */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Business Information</h3>
-        
-        <div>
-          <Label htmlFor="company">Company</Label>
-          <Input
-            id="company"
-            name="company"
-            type="text"
-            placeholder="Enter company name"
-            defaultValue={formValues.company}
-            aria-describedby="company-error"
-          />
-          <div id="company-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.company &&
-              state.errors.company.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            name="location"
-            type="text"
-            placeholder="Enter location"
-            defaultValue={formValues.location}
-            aria-describedby="location-error"
-          />
-          <div id="location-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.location &&
-              state.errors.location.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="status">Status</Label>
-          <Select name="status" defaultValue={formValues.status}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
-          <div id="status-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.status &&
-              state.errors.status.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
-        </div>
-      </div>
+      <FormFields formValues={formValues} state={state} />
 
       {/* Form Actions */}
       <div className="flex items-center justify-end space-x-4 pt-6">

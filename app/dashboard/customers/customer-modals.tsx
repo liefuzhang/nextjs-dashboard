@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 import { CustomerField } from "@/app/lib/definitions"
 import {
   Dialog,
@@ -128,7 +129,14 @@ export function DeleteCustomerModal({ open, onOpenChange, customer }: DeleteCust
             disabled={isLoading}
             className="bg-red-600 hover:bg-red-700"
           >
-            {isLoading ? "Deleting..." : "Delete Customer"}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              "Delete Customer"
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
