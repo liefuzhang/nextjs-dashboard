@@ -172,10 +172,8 @@ export async function createCustomer(
     try {
       imageUrl = await saveUploadedFile(avatarFile);
     } catch (error) {
-      console.error("File upload failed:", error);
-
       return {
-        message: "Failed to upload avatar image. Please try again.",
+        message: error instanceof Error ? error.message : "Failed to upload avatar image. Please try again.",
         values: {
           name: formData.get("name") as string,
           email: formData.get("email") as string,
@@ -316,7 +314,7 @@ export async function updateCustomer(
       `;
     }
   } catch (error) {
-    console.error("File upload failed:", error);
+    console.error("Database Error: Failed to Update Customer.", error);
 
     return {
       message: "Database Error: Failed to Update Customer.",
