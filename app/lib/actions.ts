@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import postgres from "postgres";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
-import { saveUploadedFile, getFileFromFormData } from './file-upload';
+import { saveUploadedFile, getFileFromFormData } from "./file-upload";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -165,13 +165,15 @@ export async function createCustomer(
   formData: FormData
 ) {
   // Handle file upload
-  let imageUrl = "/customers/default.png"
-  const avatarFile = getFileFromFormData(formData, "avatar")
-  
+  let imageUrl = "/customers/default.png";
+  const avatarFile = getFileFromFormData(formData, "avatar");
+
   if (avatarFile) {
     try {
-      imageUrl = await saveUploadedFile(avatarFile)
+      imageUrl = await saveUploadedFile(avatarFile);
     } catch (error) {
+      console.error("File upload failed:", error);
+
       return {
         message: "Failed to upload avatar image. Please try again.",
         values: {
@@ -182,7 +184,7 @@ export async function createCustomer(
           location: formData.get("location") as string,
           status: formData.get("status") as string,
         },
-      }
+      };
     }
   }
 
@@ -243,12 +245,12 @@ export async function updateCustomer(
   formData: FormData
 ) {
   // Handle file upload (optional for updates)
-  let imageUrl = undefined
-  const avatarFile = getFileFromFormData(formData, "avatar")
-  
+  let imageUrl = undefined;
+  const avatarFile = getFileFromFormData(formData, "avatar");
+
   if (avatarFile) {
     try {
-      imageUrl = await saveUploadedFile(avatarFile)
+      imageUrl = await saveUploadedFile(avatarFile);
     } catch (error) {
       return {
         message: "Failed to upload avatar image. Please try again.",
@@ -260,7 +262,7 @@ export async function updateCustomer(
           location: formData.get("location") as string,
           status: formData.get("status") as string,
         },
-      }
+      };
     }
   }
 
@@ -314,6 +316,8 @@ export async function updateCustomer(
       `;
     }
   } catch (error) {
+    console.error("File upload failed:", error);
+
     return {
       message: "Database Error: Failed to Update Customer.",
     };
