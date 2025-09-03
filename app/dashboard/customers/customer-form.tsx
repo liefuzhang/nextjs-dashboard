@@ -23,6 +23,7 @@ interface CustomerFormProps {
   onSuccess?: () => void
 }
 
+
 function SubmitButton() {
   const { pending } = useFormStatus()
   
@@ -40,7 +41,7 @@ function SubmitButton() {
   )
 }
 
-function FormFields({ formValues, state, customer }: { formValues: any, state: CustomerState, customer?: CustomerField | null }) {
+function FormFields({ formValues, state }: { formValues: CustomerField, state: CustomerState }) {
   const { pending } = useFormStatus()
   
   return (
@@ -48,7 +49,7 @@ function FormFields({ formValues, state, customer }: { formValues: any, state: C
       {/* Avatar Section */}
       <div className="space-y-4">
         <AvatarUpload
-          currentImageUrl={customer?.image_url}
+          currentImageUrl={formValues.image_url}
           customerName={formValues.name}
           disabled={pending}
         />
@@ -203,13 +204,15 @@ export default function CustomerForm({
   const [state, dispatch] = useFormState(updateCustomerWithId, initialState)
   
   // Use values from server state if available (after validation error), otherwise use customer data
-  const formValues = state.values || {
-    name: customer?.name || "",
-    email: customer?.email || "",
-    phone: customer?.phone || "",
-    company: customer?.company || "",
-    location: customer?.location || "",
-    status: customer?.status || "active",
+  const formValues: CustomerField = {
+    id: customer?.id || "",
+    name: state.values?.name || customer?.name || "",
+    email: state.values?.email || customer?.email || "",
+    phone: state.values?.phone || customer?.phone || "",
+    company: state.values?.company || customer?.company || "",
+    location: state.values?.location || customer?.location || "",
+    status: (state.values?.status as "active" | "inactive") || customer?.status || "active",
+    image_url: customer?.image_url || "",
   }
 
   useEffect(() => {
@@ -222,7 +225,7 @@ export default function CustomerForm({
 
   return (
     <form action={dispatch} className="space-y-6" key={state.message || "form"}>
-      <FormFields formValues={formValues} state={state} customer={customer} />
+      <FormFields formValues={formValues} state={state} />
 
       {/* Form Actions */}
       <div className="flex items-center justify-end space-x-4 pt-6">
