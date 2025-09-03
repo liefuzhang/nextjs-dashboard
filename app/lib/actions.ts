@@ -173,7 +173,10 @@ export async function createCustomer(
       imageUrl = await saveUploadedFile(avatarFile);
     } catch (error) {
       return {
-        message: error instanceof Error ? error.message : "Failed to upload avatar image. Please try again.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to upload avatar image. Please try again.",
         values: {
           name: formData.get("name") as string,
           email: formData.get("email") as string,
