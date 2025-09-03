@@ -15,6 +15,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { createCustomer, updateCustomer, CustomerState } from '@/app/lib/actions'
 import { CustomerField } from "@/app/lib/definitions"
+import AvatarUpload from "./avatar-upload"
 
 interface CustomerFormProps {
   customer?: CustomerField | null
@@ -39,11 +40,20 @@ function SubmitButton() {
   )
 }
 
-function FormFields({ formValues, state }: { formValues: any, state: CustomerState }) {
+function FormFields({ formValues, state, customer }: { formValues: any, state: CustomerState, customer?: CustomerField | null }) {
   const { pending } = useFormStatus()
   
   return (
     <>
+      {/* Avatar Section */}
+      <div className="space-y-4">
+        <AvatarUpload
+          currentImageUrl={customer?.image_url}
+          customerName={formValues.name}
+          disabled={pending}
+        />
+      </div>
+
       {/* Personal Information Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Personal Information</h3>
@@ -212,7 +222,7 @@ export default function CustomerForm({
 
   return (
     <form action={dispatch} className="space-y-6" key={state.message || "form"}>
-      <FormFields formValues={formValues} state={state} />
+      <FormFields formValues={formValues} state={state} customer={customer} />
 
       {/* Form Actions */}
       <div className="flex items-center justify-end space-x-4 pt-6">

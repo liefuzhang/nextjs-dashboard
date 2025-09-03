@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import postgres from "postgres";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
+import { saveUploadedFile, getFileFromFormData } from './file-upload';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -163,6 +164,28 @@ export async function createCustomer(
   prevState: CustomerState,
   formData: FormData
 ) {
+  // Handle file upload
+  let imageUrl = "/customers/default.png"
+  const avatarFile = getFileFromFormData(formData, "avatar")
+  
+  if (avatarFile) {
+    try {
+      imageUrl = await saveUploadedFile(avatarFile)
+    } catch (error) {
+      return {
+        message: "Failed to upload avatar image. Please try again.",
+        values: {
+          name: formData.get("name") as string,
+          email: formData.get("email") as string,
+          phone: formData.get("phone") as string,
+          company: formData.get("company") as string,
+          location: formData.get("location") as string,
+          status: formData.get("status") as string,
+        },
+      }
+    }
+  }
+
   // Validate form using Zod
   const validatedFields = CreateCustomer.safeParse({
     name: formData.get("name"),
@@ -171,7 +194,7 @@ export async function createCustomer(
     company: formData.get("company"),
     location: formData.get("location"),
     status: formData.get("status"),
-    image_url: formData.get("image_url") || "/customers/default.png",
+    image_url: imageUrl,
   });
 
   // If form validation fails, return errors early
@@ -219,6 +242,28 @@ export async function updateCustomer(
   prevState: CustomerState,
   formData: FormData
 ) {
+  // Handle file upload (optional for updates)
+  let imageUrl = undefined
+  const avatarFile = getFileFromFormData(formData, "avatar")
+  
+  if (avatarFile) {
+    try {
+      imageUrl = await saveUploadedFile(avatarFile)
+    } catch (error) {
+      return {
+        message: "Failed to upload avatar image. Please try again.",
+        values: {
+          name: formData.get("name") as string,
+          email: formData.get("email") as string,
+          phone: formData.get("phone") as string,
+          company: formData.get("company") as string,
+          location: formData.get("location") as string,
+          status: formData.get("status") as string,
+        },
+      }
+    }
+  }
+
   // Validate form using Zod
   const validatedFields = UpdateCustomer.safeParse({
     name: formData.get("name"),
@@ -227,6 +272,7 @@ export async function updateCustomer(
     company: formData.get("company"),
     location: formData.get("location"),
     status: formData.get("status"),
+    image_url: imageUrl,
   });
 
   // If form validation fails, return errors early
@@ -246,16 +292,27 @@ export async function updateCustomer(
   }
 
   // Prepare data for update
-  const { name, email, phone, company, location, status } =
+  const { name, email, phone, company, location, status, image_url } =
     validatedFields.data;
 
   try {
-    await sql`
-      UPDATE customers
-      SET name = ${name}, email = ${email}, phone = ${phone}, company = ${company}, 
-          location = ${location}, status = ${status}
-      WHERE id = ${id}
-    `;
+    if (image_url) {
+      // Update with new image
+      await sql`
+        UPDATE customers
+        SET name = ${name}, email = ${email}, phone = ${phone}, company = ${company}, 
+            location = ${location}, status = ${status}, image_url = ${image_url}
+        WHERE id = ${id}
+      `;
+    } else {
+      // Update without changing image
+      await sql`
+        UPDATE customers
+        SET name = ${name}, email = ${email}, phone = ${phone}, company = ${company}, 
+            location = ${location}, status = ${status}
+        WHERE id = ${id}
+      `;
+    }
   } catch (error) {
     return {
       message: "Database Error: Failed to Update Customer.",
