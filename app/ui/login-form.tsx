@@ -33,7 +33,7 @@ export default function LoginForm() {
           <TabsTrigger value="password">Password</TabsTrigger>
           <TabsTrigger value="magic">Magic Link</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="password" className="space-y-3">
           <form action={formAction} className="space-y-3">
             <div className="w-full">
@@ -83,7 +83,7 @@ export default function LoginForm() {
             </Button>
           </form>
         </TabsContent>
-        
+
         <TabsContent value="magic" className="space-y-3">
           <form
             action={(formData: FormData) => {
@@ -114,10 +114,11 @@ export default function LoginForm() {
               </div>
             </div>
             <Button type="submit" className="mt-4 w-full">
-              Send Magic Link <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+              Send Magic Link{" "}
+              <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
             </Button>
             <p className="text-sm text-gray-600 text-center">
-              We'll send you a secure link to sign in without a password.
+              We&apos;ll send you a secure link to sign in without a password.
             </p>
           </form>
         </TabsContent>
