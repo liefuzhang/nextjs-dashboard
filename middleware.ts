@@ -4,6 +4,12 @@ import { authConfig } from "./auth.config"
 export default NextAuth(authConfig).auth;
 
 export const config = {
-  // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+  // Protect all routes except:
+  // - API routes that don't need authentication
+  // - Static files (_next/static, images)
+  // - Auth API routes (handled by NextAuth)
+  // - Public pages (login, signup, etc.)
+  matcher: [
+    "/((?!api/auth|_next/static|_next/image|.*\\.png$|login|signup|$).*)"
+  ],
 };
