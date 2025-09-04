@@ -37,7 +37,6 @@
     "next": "latest",
     "next-auth": "5.0.0-beta.29",
     "next-themes": "^0.4.6",
-    "pg": "^8.16.3",
     "postcss": "8.5.1",
     "postgres": "^3.4.6",
     "react": "latest",
@@ -55,7 +54,6 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/node": "22.10.7",
-    "@types/pg": "^8.15.5",
     "@types/react": "19.0.7",
     "@types/react-dom": "19.0.3",
     "dotenv": "^17.2.2",
