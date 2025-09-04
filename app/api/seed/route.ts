@@ -4,8 +4,9 @@ import {
   invoices,
   customers,
   revenue,
-  myusers,
+  users,
 } from "../../lib/placeholder-data";
+import { auth } from "@/auth";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -16,17 +17,21 @@ async function seedUsers() {
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       email TEXT NOT NULL UNIQUE,
-      password TEXT NOT NULL
+      password TEXT NOT NULL,
+      role VARCHAR(50) NOT NULL DEFAULT 'user'
     );
   `;
 
   const insertedUsers = await Promise.all(
-    myusers.map(async (user) => {
+    users.map(async (user) => {
       const hashedPassword = await bcrypt.hash(user.password, 10);
       return sql`
-        INSERT INTO users (id, name, email, password)
-        VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
-        ON CONFLICT (id) DO NOTHING;
+        INSERT INTO users (id, name, email, password, role)
+        VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword}, ${user.role})
+        ON CONFLICT (email) DO UPDATE SET 
+          name = EXCLUDED.name,
+          password = EXCLUDED.password,
+          role = EXCLUDED.role;
       `;
     })
   );
@@ -115,8 +120,8 @@ async function seedRevenue() {
 export async function GET() {
   try {
     const result = await sql.begin((sql) => [
-      //seedUsers(),
-      seedCustomers(),
+      seedUsers(),
+      //seedCustomers(),
       // seedInvoices(),
       // seedRevenue(),
     ]);
