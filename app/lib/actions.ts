@@ -3,12 +3,12 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import postgres from "postgres";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 import { saveUploadedFile, getFileFromFormData } from "./file-upload";
-
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
+import { db } from "@/db";
+import { customers, invoices } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -96,10 +96,12 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
   // Insert data into the database
   try {
-    await sql`
-      INSERT INTO invoices (customer_id, amount, status, date)
-      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-    `;
+    await db.insert(invoices).values({
+      customerId,
+      amount: amountInCents,
+      status,
+      date,
+    });
   } catch (error) {
     // If a database error occurs, return a more specific error.
     return {
@@ -122,11 +124,14 @@ export async function updateInvoice(id: string, formData: FormData) {
   const amountInCents = amount * 100;
 
   try {
-    await sql`
-    UPDATE invoices
-    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-    WHERE id = ${id}
-  `;
+    await db
+      .update(invoices)
+      .set({
+        customerId,
+        amount: amountInCents,
+        status,
+      })
+      .where(eq(invoices.id, id));
   } catch (error) {
     console.error(error);
   }
@@ -136,7 +141,7 @@ export async function updateInvoice(id: string, formData: FormData) {
 }
 
 export async function deleteInvoice(id: string) {
-  await sql`DELETE FROM invoices WHERE id = ${id}`;
+  await db.delete(invoices).where(eq(invoices.id, id));
   revalidatePath("/dashboard/invoices");
 }
 
@@ -222,12 +227,15 @@ export async function createCustomer(
 
   // Insert data into the database
   try {
-    await sql`
-      INSERT INTO customers (name, email, image_url, status, phone, company, location)
-      VALUES (${name}, ${email}, ${
-      image_url || "/customers/default.png"
-    }, ${status}, ${phone}, ${company}, ${location})
-    `;
+    await db.insert(customers).values({
+      name,
+      email,
+      imageUrl: image_url || "/customers/default.png",
+      status,
+      phone,
+      company,
+      location,
+    });
   } catch (error) {
     // If a database error occurs, return a more specific error
     return {
@@ -301,20 +309,31 @@ export async function updateCustomer(
   try {
     if (image_url) {
       // Update with new image
-      await sql`
-        UPDATE customers
-        SET name = ${name}, email = ${email}, phone = ${phone}, company = ${company}, 
-            location = ${location}, status = ${status}, image_url = ${image_url}
-        WHERE id = ${id}
-      `;
+      await db
+        .update(customers)
+        .set({
+          name,
+          email,
+          phone,
+          company,
+          location,
+          status,
+          imageUrl: image_url,
+        })
+        .where(eq(customers.id, id));
     } else {
       // Update without changing image
-      await sql`
-        UPDATE customers
-        SET name = ${name}, email = ${email}, phone = ${phone}, company = ${company}, 
-            location = ${location}, status = ${status}
-        WHERE id = ${id}
-      `;
+      await db
+        .update(customers)
+        .set({
+          name,
+          email,
+          phone,
+          company,
+          location,
+          status,
+        })
+        .where(eq(customers.id, id));
     }
   } catch (error) {
     console.error("Database Error: Failed to Update Customer.", error);
@@ -331,7 +350,7 @@ export async function updateCustomer(
 
 export async function deleteCustomer(id: string) {
   try {
-    await sql`DELETE FROM customers WHERE id = ${id}`;
+    await db.delete(customers).where(eq(customers.id, id));
     revalidatePath("/dashboard/customers");
     return { message: "Customer deleted successfully." };
   } catch (error) {

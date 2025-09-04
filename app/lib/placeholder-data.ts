@@ -176,4 +176,43 @@ const revenue = [
   { month: "Dec", revenue: 4800 },
 ];
 
-export { users, customers, invoices, revenue };
+const products = [
+  {
+    id: "550e8400-e29b-41d4-a716-446655440001",
+    name: "Premium Dashboard License",
+    description: "Full-featured dashboard with advanced analytics",
+    price: 9999, // $99.99 in cents
+    category: "Software",
+    image_url: "/products/dashboard-pro.png",
+    status: "active" as const,
+  },
+  {
+    id: "550e8400-e29b-41d4-a716-446655440002",
+    name: "Basic Analytics Package",
+    description: "Essential analytics tools for small businesses",
+    price: 4999, // $49.99 in cents
+    category: "Software",
+    image_url: "/products/analytics-basic.png",
+    status: "active" as const,
+  },
+  {
+    id: "550e8400-e29b-41d4-a716-446655440003",
+    name: "Custom Integration Service",
+    description: "One-time setup for custom dashboard integrations",
+    price: 24999, // $249.99 in cents
+    category: "Service",
+    image_url: "/products/integration-service.png",
+    status: "active" as const,
+  },
+  {
+    id: "550e8400-e29b-41d4-a716-446655440004",
+    name: "Legacy Report Tool",
+    description: "Deprecated reporting tool - no longer supported",
+    price: 1999, // $19.99 in cents
+    category: "Software",
+    image_url: "/products/legacy-reports.png",
+    status: "inactive" as const,
+  },
+];
+
+export { users, customers, invoices, revenue, products };

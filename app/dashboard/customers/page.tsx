@@ -18,7 +18,7 @@ export default async function Page({
     return (
       customer.name.toLowerCase().includes(searchLower) ||
       customer.email.toLowerCase().includes(searchLower) ||
-      customer.company.toLowerCase().includes(searchLower)
+      customer.company?.toLowerCase().includes(searchLower)
     );
   });
 
