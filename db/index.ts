@@ -2,6 +2,9 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 import { eq, desc, asc, sql } from "drizzle-orm";
+import type { PgTransaction } from "drizzle-orm/pg-core";
+import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
+import type { ExtractTablesWithRelations } from "drizzle-orm";
 
 const client = postgres(process.env.POSTGRES_URL!, {
   ssl: { rejectUnauthorized: false },
@@ -9,7 +12,7 @@ const client = postgres(process.env.POSTGRES_URL!, {
 export const db = drizzle(client, { schema });
 
 export async function withTransaction<T>(
-  fn: (tx: typeof db) => Promise<T>
+  fn: (tx: PgTransaction<PostgresJsQueryResultHKT, typeof schema, ExtractTablesWithRelations<typeof schema>>) => Promise<T>
 ): Promise<T> {
   return await db.transaction(fn);
 }
@@ -25,7 +28,7 @@ export const preparedStatements = {
     })
     .from(schema.invoices)
     .where(eq(schema.invoices.id, sql.placeholder("id")))
-    .prepare(),
+    .prepare("getInvoiceById"),
 
   getFilteredInvoices: db
     .select({
@@ -52,7 +55,7 @@ export const preparedStatements = {
     .orderBy(desc(schema.invoices.date))
     .limit(sql.placeholder("limit"))
     .offset(sql.placeholder("offset"))
-    .prepare(),
+    .prepare("getFilteredInvoices"),
 
   getFilteredCustomers: db
     .select({
@@ -74,5 +77,5 @@ export const preparedStatements = {
     )
     .groupBy(schema.customers.id, schema.customers.name, schema.customers.email, schema.customers.imageUrl)
     .orderBy(asc(schema.customers.name))
-    .prepare(),
+    .prepare("getFilteredCustomers"),
 };
