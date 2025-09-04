@@ -7,15 +7,7 @@ import type { User } from "@/app/lib/definitions";
 import bcrypt from "bcrypt";
 import postgres from "postgres";
 import Resend from "next-auth/providers/resend";
-import PostgresAdapter from "@auth/pg-adapter";
-import { Pool } from "pg";
-
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+import { SupabaseAdapter } from "@auth/supabase-adapter";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -31,18 +23,11 @@ async function getUser(email: string): Promise<User | undefined> {
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
   ...authConfig,
-  adapter: PostgresAdapter(pool),
-  session: {
-    strategy: "jwt",
-  },
+  
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    Resend({
-      apiKey: process.env.AUTH_RESEND_KEY,
-      from: process.env.EMAIL_FROM,
     }),
     Credentials({
       async authorize(credentials) {
