@@ -24,7 +24,8 @@
       "Read(/D:\\My Projects\\nextjs-dashboard\\app\\dashboard\\customers/**)",
       "Read(/D:\\My Projects\\nextjs-dashboard\\app\\lib/**)",
       "Read(/D:\\My Projects\\nextjs-dashboard\\db\\schema/**)",
-      "Read(/D:\\My Projects\\nextjs-dashboard\\db\\schema/**)"
+      "Read(/D:\\My Projects\\nextjs-dashboard\\db\\schema/**)",
+      "Read(/D:\\My Projects\\nextjs-dashboard\\db/**)"
     ],
     "deny": [],
     "ask": []

@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, index } from 'drizzle-orm/pg-core';
 
 export const customers = pgTable('customers', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -9,4 +9,8 @@ export const customers = pgTable('customers', {
   phone: varchar('phone', { length: 20 }).notNull(),
   company: varchar('company', { length: 100 }).notNull(),
   location: varchar('location', { length: 100 }).notNull(),
-});
+}, (table) => ({
+  nameIdx: index("customers_name_idx").on(table.name),
+  emailIdx: index("customers_email_idx").on(table.email),
+  statusIdx: index("customers_status_idx").on(table.status),
+}));

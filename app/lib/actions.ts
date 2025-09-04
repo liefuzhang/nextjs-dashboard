@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 import { saveUploadedFile, getFileFromFormData } from "./file-upload";
-import { db } from "@/db";
+import { db, withTransaction } from "@/db";
 import { customers, invoices } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -94,18 +94,34 @@ export async function createInvoice(prevState: State, formData: FormData) {
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split("T")[0];
 
-  // Insert data into the database
+  // Insert data into the database with transaction
   try {
-    await db.insert(invoices).values({
-      customerId,
-      amount: amountInCents,
-      status,
-      date,
+    await withTransaction(async (tx) => {
+      // First, verify customer exists
+      const customer = await tx
+        .select({ id: customers.id })
+        .from(customers)
+        .where(eq(customers.id, customerId))
+        .limit(1);
+
+      if (customer.length === 0) {
+        throw new Error("Customer not found");
+      }
+
+      // Then create the invoice
+      await tx.insert(invoices).values({
+        customerId,
+        amount: amountInCents,
+        status,
+        date,
+      });
     });
   } catch (error) {
     // If a database error occurs, return a more specific error.
     return {
-      message: "Database Error: Failed to Create Invoice.",
+      message: error instanceof Error && error.message === "Customer not found"
+        ? "Database Error: Customer does not exist."
+        : "Database Error: Failed to Create Invoice.",
     };
   }
 
@@ -350,12 +366,26 @@ export async function updateCustomer(
 
 export async function deleteCustomer(id: string) {
   try {
-    await db.delete(customers).where(eq(customers.id, id));
+    await withTransaction(async (tx) => {
+      // First, delete all related invoices
+      await tx.delete(invoices).where(eq(invoices.customerId, id));
+      
+      // Then delete the customer
+      const result = await tx.delete(customers).where(eq(customers.id, id));
+      
+      // Check if customer was actually deleted
+      if (result.count === 0) {
+        throw new Error("Customer not found");
+      }
+    });
+    
     revalidatePath("/dashboard/customers");
     return { message: "Customer deleted successfully." };
   } catch (error) {
     return {
-      message: "Database Error: Failed to Delete Customer.",
+      message: error instanceof Error && error.message === "Customer not found"
+        ? "Database Error: Customer not found."
+        : "Database Error: Failed to Delete Customer.",
     };
   }
 }

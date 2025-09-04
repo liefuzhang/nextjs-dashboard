@@ -7,7 +7,7 @@ import {
   Revenue,
 } from "./definitions";
 import { formatCurrency } from "./utils";
-import { db } from "@/db";
+import { db, preparedStatements } from "@/db";
 import { customers, invoices, revenue } from "@/db/schema";
 import { eq, desc, asc, count, sum, sql } from "drizzle-orm";
 
@@ -102,31 +102,11 @@ export async function fetchFilteredInvoices(
   try {
     const queryPattern = `%${query}%`;
     
-    const invoicesList = await db
-      .select({
-        id: invoices.id,
-        amount: invoices.amount,
-        date: invoices.date,
-        status: invoices.status,
-        name: customers.name,
-        email: customers.email,
-        image_url: customers.imageUrl,
-        customer_id: invoices.customerId,
-      })
-      .from(invoices)
-      .innerJoin(customers, eq(invoices.customerId, customers.id))
-      .where(
-        sql`
-          ${customers.name} ILIKE ${queryPattern} OR
-          ${customers.email} ILIKE ${queryPattern} OR
-          ${invoices.amount}::text ILIKE ${queryPattern} OR
-          ${invoices.date}::text ILIKE ${queryPattern} OR
-          ${invoices.status} ILIKE ${queryPattern}
-        `
-      )
-      .orderBy(desc(invoices.date))
-      .limit(ITEMS_PER_PAGE)
-      .offset(offset);
+    const invoicesList = await preparedStatements.getFilteredInvoices.execute({
+      queryPattern,
+      limit: ITEMS_PER_PAGE,
+      offset,
+    });
 
     return invoicesList;
   } catch (error) {
@@ -163,23 +143,19 @@ export async function fetchInvoicesPages(query: string) {
 
 export async function fetchInvoiceById(id: string) {
   try {
-    const data = await db
-      .select({
-        id: invoices.id,
-        customer_id: invoices.customerId,
-        amount: invoices.amount,
-        status: invoices.status,
-      })
-      .from(invoices)
-      .where(eq(invoices.id, id));
+    const data = await preparedStatements.getInvoiceById.execute({ id });
 
-    const invoice = data.map((invoice) => ({
-      ...invoice,
+    if (data.length === 0) {
+      throw new Error("Invoice not found");
+    }
+
+    const invoice = {
+      ...data[0],
       // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
+      amount: data[0].amount / 100,
+    };
 
-    return invoice[0];
+    return invoice;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch invoice.");
@@ -213,29 +189,13 @@ export async function fetchFilteredCustomers(query: string) {
   try {
     const queryPattern = `%${query}%`;
     
-    const data = await db
-      .select({
-        id: customers.id,
-        name: customers.name,
-        email: customers.email,
-        image_url: customers.imageUrl,
-        total_invoices: count(invoices.id),
-        total_pending: sum(sql`CASE WHEN ${invoices.status} = 'pending' THEN ${invoices.amount} ELSE 0 END`).mapWith(Number),
-        total_paid: sum(sql`CASE WHEN ${invoices.status} = 'paid' THEN ${invoices.amount} ELSE 0 END`).mapWith(Number),
-      })
-      .from(customers)
-      .leftJoin(invoices, eq(customers.id, invoices.customerId))
-      .where(
-        sql`
-          ${customers.name} ILIKE ${queryPattern} OR
-          ${customers.email} ILIKE ${queryPattern}
-        `
-      )
-      .groupBy(customers.id, customers.name, customers.email, customers.imageUrl)
-      .orderBy(asc(customers.name));
+    const data = await preparedStatements.getFilteredCustomers.execute({
+      queryPattern,
+    });
 
     const customersData = data.map((customer) => ({
       ...customer,
+      total_invoices: Number(customer.total_invoices),
       total_pending: formatCurrency(customer.total_pending ?? 0),
       total_paid: formatCurrency(customer.total_paid ?? 0),
     }));

@@ -8,6 +8,20 @@
       "when": 1756983427948,
       "tag": "0000_spooky_revanche",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1756990786494,
+      "tag": "0001_tough_quentin_quire",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756990887742,
+      "tag": "0002_known_bug",
+      "breakpoints": true
     }
   ]
 }
