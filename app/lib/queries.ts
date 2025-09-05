@@ -9,6 +9,7 @@ import {
   getCustomers,
   getFilteredCustomers
 } from "./query-actions";
+import { createCustomer, updateCustomer, deleteCustomer } from "./actions";
 
 // Query Keys - centralized for consistency
 export const queryKeys = {
@@ -89,7 +90,17 @@ export function useInvoice(id: string) {
 export function useCustomers() {
   return useQuery({
     queryKey: queryKeys.customers,
-    queryFn: getCustomers,
+    queryFn: async () => {
+      try {
+        console.log("Fetching customers...");
+        const result = await getCustomers();
+        console.log("Customers fetched successfully:", result);
+        return result;
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+        throw error;
+      }
+    },
   });
 }
 
@@ -98,5 +109,60 @@ export function useFilteredCustomers(query: string) {
     queryKey: queryKeys.filteredCustomers(query),
     queryFn: () => getFilteredCustomers(query),
     enabled: query !== undefined,
+  });
+}
+
+// Customer Mutations
+export function useCreateCustomer() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const prevState = { message: null, errors: {} };
+      return await createCustomer(prevState, formData);
+    },
+    onSuccess: () => {
+      // Invalidate and refetch customers list
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers });
+      // Also invalidate any filtered customer queries
+      queryClient.invalidateQueries({ queryKey: ["customers", "filtered"] });
+    },
+  });
+}
+
+export function useUpdateCustomer() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, formData }: { id: string; formData: FormData }) => {
+      const prevState = { message: null, errors: {} };
+      return await updateCustomer(id, prevState, formData);
+    },
+    onSuccess: () => {
+      // Invalidate customers list and individual customer queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers });
+      queryClient.invalidateQueries({ queryKey: ["customers", "filtered"] });
+      // Also invalidate dashboard cards as customer count might change
+      queryClient.invalidateQueries({ queryKey: queryKeys.cardData });
+    },
+  });
+}
+
+export function useDeleteCustomer() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return await deleteCustomer(id);
+    },
+    onSuccess: () => {
+      // Invalidate all customer-related queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers });
+      queryClient.invalidateQueries({ queryKey: ["customers", "filtered"] });
+      // Invalidate dashboard data as customer count changed
+      queryClient.invalidateQueries({ queryKey: queryKeys.cardData });
+      // Also invalidate invoices as related invoices were deleted
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    },
   });
 }

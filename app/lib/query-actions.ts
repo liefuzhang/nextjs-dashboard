@@ -10,7 +10,6 @@ import {
   fetchCustomers,
   fetchFilteredCustomers
 } from "./data";
-
 // Dashboard overview server actions
 export async function getRevenue() {
   return await fetchRevenue();
@@ -45,3 +44,4 @@ export async function getCustomers() {
 export async function getFilteredCustomers(query: string) {
   return await fetchFilteredCustomers(query);
 }
+

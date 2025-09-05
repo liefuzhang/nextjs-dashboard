@@ -259,9 +259,8 @@ export async function createCustomer(
     };
   }
 
-  // Revalidate the cache for the customers page and redirect the user
-  revalidatePath("/dashboard/customers");
-  redirect("/dashboard/customers");
+  // Return success response for TanStack Query
+  return { success: true, message: "Customer created successfully." };
 }
 
 export async function updateCustomer(
@@ -359,9 +358,8 @@ export async function updateCustomer(
     };
   }
 
-  // Revalidate the cache for the customers page and redirect the user
-  revalidatePath("/dashboard/customers");
-  redirect("/dashboard/customers");
+  // Return success response for TanStack Query
+  return { success: true, message: "Customer updated successfully." };
 }
 
 export async function deleteCustomer(id: string) {
@@ -379,7 +377,6 @@ export async function deleteCustomer(id: string) {
       }
     });
     
-    revalidatePath("/dashboard/customers");
     return { message: "Customer deleted successfully." };
   } catch (error) {
     return {

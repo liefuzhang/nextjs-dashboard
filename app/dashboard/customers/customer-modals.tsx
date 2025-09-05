@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 import { CustomerField } from "@/app/lib/definitions"
+import { useDeleteCustomer } from "@/app/lib/queries"
 import {
   Dialog,
   DialogContent,
@@ -22,7 +23,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import CustomerForm from "./customer-form"
-import { deleteCustomer } from '@/app/lib/actions'
 
 // Add Customer Modal
 interface AddCustomerModalProps {
@@ -92,22 +92,25 @@ interface DeleteCustomerModalProps {
 }
 
 export function DeleteCustomerModal({ open, onOpenChange, customer }: DeleteCustomerModalProps) {
-  const [isLoading, setIsLoading] = useState(false)
+  const deleteMutation = useDeleteCustomer()
 
   const handleDelete = async () => {
     if (!customer?.id) return
     
-    setIsLoading(true)
-    try {
-      await deleteCustomer(customer.id)
-      toast.success(`${customer.name} has been deleted successfully.`)
-      onOpenChange(false)
-    } catch (error) {
-      console.error('Failed to delete customer:', error)
-      toast.error("Failed to delete customer. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
+    deleteMutation.mutate(customer.id, {
+      onSuccess: (result) => {
+        if (result?.message && !result.message.includes('Error')) {
+          toast.success(`${customer.name} has been deleted successfully.`)
+          onOpenChange(false)
+        } else {
+          toast.error(result?.message || "Failed to delete customer. Please try again.")
+        }
+      },
+      onError: (error) => {
+        console.error('Failed to delete customer:', error)
+        toast.error("Failed to delete customer. Please try again.")
+      }
+    })
   }
 
   return (
@@ -121,15 +124,15 @@ export function DeleteCustomerModal({ open, onOpenChange, customer }: DeleteCust
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>
+          <AlertDialogCancel disabled={deleteMutation.isPending}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction 
             onClick={handleDelete}
-            disabled={isLoading}
+            disabled={deleteMutation.isPending}
             className="bg-red-600 hover:bg-red-700"
           >
-            {isLoading ? (
+            {deleteMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Deleting...
