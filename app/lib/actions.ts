@@ -119,9 +119,10 @@ export async function createInvoice(prevState: State, formData: FormData) {
   } catch (error) {
     // If a database error occurs, return a more specific error.
     return {
-      message: error instanceof Error && error.message === "Customer not found"
-        ? "Database Error: Customer does not exist."
-        : "Database Error: Failed to Create Invoice.",
+      message:
+        error instanceof Error && error.message === "Customer not found"
+          ? "Database Error: Customer does not exist."
+          : "Database Error: Failed to Create Invoice.",
     };
   }
 
@@ -367,22 +368,23 @@ export async function deleteCustomer(id: string) {
     await withTransaction(async (tx) => {
       // First, delete all related invoices
       await tx.delete(invoices).where(eq(invoices.customerId, id));
-      
+
       // Then delete the customer
       const result = await tx.delete(customers).where(eq(customers.id, id));
-      
+
       // Check if customer was actually deleted
       if (result.count === 0) {
         throw new Error("Customer not found");
       }
     });
-    
+
     return { message: "Customer deleted successfully." };
   } catch (error) {
     return {
-      message: error instanceof Error && error.message === "Customer not found"
-        ? "Database Error: Customer not found."
-        : "Database Error: Failed to Delete Customer.",
+      message:
+        error instanceof Error && error.message === "Customer not found"
+          ? "Database Error: Customer not found."
+          : "Database Error: Failed to Delete Customer.",
     };
   }
 }

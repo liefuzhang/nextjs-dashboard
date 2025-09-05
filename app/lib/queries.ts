@@ -10,6 +10,7 @@ import {
   getFilteredCustomers
 } from "./query-actions";
 import { createCustomer, updateCustomer, deleteCustomer } from "./actions";
+import { CustomerField } from "./definitions";
 
 // Query Keys - centralized for consistency
 export const queryKeys = {
@@ -121,10 +122,40 @@ export function useCreateCustomer() {
       const prevState = { message: null, errors: {} };
       return await createCustomer(prevState, formData);
     },
-    onSuccess: () => {
-      // Invalidate and refetch customers list
+    onMutate: async (formData: FormData) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: queryKeys.customers });
+      
+      // Snapshot the previous value
+      const previousCustomers = queryClient.getQueryData<CustomerField[]>(queryKeys.customers);
+      
+      // Create optimistic customer object from form data
+      const optimisticCustomer = {
+        id: `temp-${Date.now()}`, // Temporary ID
+        name: formData.get('name') as string || '',
+        email: formData.get('email') as string || '',
+        phone: formData.get('phone') as string || '',
+        company: formData.get('company') as string || '',
+        location: formData.get('location') as string || '',
+        status: formData.get('status') as 'active' | 'inactive' || 'active',
+        image_url: '/customers/default.png', // Default image until upload completes
+      };
+      
+      // Optimistically update the cache
+      queryClient.setQueryData<CustomerField[]>(queryKeys.customers, (old) => {
+        return old ? [...old, optimisticCustomer] : [optimisticCustomer];
+      });
+      
+      // Return a context object with the snapshotted value
+      return { previousCustomers, optimisticCustomer };
+    },
+    onError: (err, newCustomer, context) => {
+      // Rollback to previous state on error
+      queryClient.setQueryData(queryKeys.customers, context?.previousCustomers);
+    },
+    onSettled: () => {
+      // Always refetch after error or success to ensure consistency
       queryClient.invalidateQueries({ queryKey: queryKeys.customers });
-      // Also invalidate any filtered customer queries
       queryClient.invalidateQueries({ queryKey: ["customers", "filtered"] });
     },
   });
@@ -155,13 +186,33 @@ export function useDeleteCustomer() {
     mutationFn: async (id: string) => {
       return await deleteCustomer(id);
     },
-    onSuccess: () => {
-      // Invalidate all customer-related queries
+    onMutate: async (id: string) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: queryKeys.customers });
+      
+      // Snapshot the previous value
+      const previousCustomers = queryClient.getQueryData<CustomerField[]>(queryKeys.customers);
+      
+      // Get the customer being deleted for potential rollback
+      const deletedCustomer = previousCustomers?.find(c => c.id === id);
+      
+      // Optimistically remove the customer from cache
+      queryClient.setQueryData<CustomerField[]>(queryKeys.customers, (old) => {
+        return old?.filter(customer => customer.id !== id) || [];
+      });
+      
+      // Return context for potential rollback
+      return { previousCustomers, deletedCustomer };
+    },
+    onError: (err, id, context) => {
+      // Rollback to previous state on error
+      queryClient.setQueryData(queryKeys.customers, context?.previousCustomers);
+    },
+    onSettled: () => {
+      // Always refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey: queryKeys.customers });
       queryClient.invalidateQueries({ queryKey: ["customers", "filtered"] });
-      // Invalidate dashboard data as customer count changed
       queryClient.invalidateQueries({ queryKey: queryKeys.cardData });
-      // Also invalidate invoices as related invoices were deleted
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
     },
   });
