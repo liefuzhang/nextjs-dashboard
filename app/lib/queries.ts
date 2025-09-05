@@ -31,6 +31,9 @@ export function useRevenue() {
   return useQuery({
     queryKey: queryKeys.revenue,
     queryFn: getRevenue,
+    // Enhanced background refetch settings
+    refetchInterval: 1000 * 60 * 2, // Refetch every 2 minutes
+    refetchIntervalInBackground: true, // Continue refetching even when tab is not active
   });
 }
 
@@ -38,6 +41,9 @@ export function useLatestInvoices() {
   return useQuery({
     queryKey: queryKeys.latestInvoices,
     queryFn: getLatestInvoices,
+    // Refetch latest invoices more frequently since they change often
+    refetchInterval: 1000 * 30, // Every 30 seconds
+    refetchOnWindowFocus: true, // Always refetch when user returns to tab
   });
 }
 
@@ -45,6 +51,11 @@ export function useCardData() {
   return useQuery({
     queryKey: queryKeys.cardData,
     queryFn: getCardData,
+    // Dashboard cards are important metrics - keep them fresh
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    // Refetch every 5 minutes for dashboard overview
+    refetchInterval: 1000 * 60 * 5, 
   });
 }
 

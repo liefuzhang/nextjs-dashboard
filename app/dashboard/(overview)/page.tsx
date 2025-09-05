@@ -10,6 +10,7 @@ import { useRevenue, useLatestInvoices, useCardData } from "@/app/lib/queries";
 import RevenueChart from "@/app/ui/dashboard/revenue-chart";
 import LatestInvoices from "@/app/ui/dashboard/latest-invoices";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { QueryStatus } from "@/app/components/query-status";
 
 function DashboardCards() {
   const { data: cardData, isLoading, error } = useCardData();
@@ -82,6 +83,10 @@ export default function Page() {
       <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
         Dashboard
       </h1>
+      
+      {/* Query Status Demo Component */}
+      <QueryStatus />
+      
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <DashboardCards />
       </div>

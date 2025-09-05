@@ -19,10 +19,12 @@ export function Providers({ children }: ProvidersProps) {
         gcTime: 1000 * 60 * 10,
         // Retry failed requests up to 3 times
         retry: 3,
-        // Refetch on window focus
+        // Enhanced refetch behavior
         refetchOnWindowFocus: true,
-        // Refetch on reconnect
         refetchOnReconnect: true,
+        refetchOnMount: true,
+        // Network mode - continue trying even when offline
+        networkMode: "always",
       },
     },
   }));
