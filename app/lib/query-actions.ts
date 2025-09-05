@@ -45,3 +45,24 @@ export async function getFilteredCustomers(query: string) {
   return await fetchFilteredCustomers(query);
 }
 
+// Infinite query server action for invoices
+export async function getInfiniteInvoices({ 
+  pageParam, 
+  queryKey 
+}: { 
+  pageParam: number; 
+  queryKey: readonly [string, string, { query: string }]
+}) {
+  const query = queryKey[2].query;
+  const invoices = await fetchFilteredInvoices(query, pageParam);
+  const totalPages = await fetchInvoicesPages(query);
+  
+  return {
+    data: invoices,
+    nextPage: pageParam < totalPages ? pageParam + 1 : undefined,
+    hasMore: pageParam < totalPages,
+    totalPages,
+    currentPage: pageParam,
+  };
+}
+

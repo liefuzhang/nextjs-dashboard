@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { 
   getRevenue, 
   getLatestInvoices, 
@@ -7,7 +7,8 @@ import {
   getInvoicesPages,
   getInvoiceById,
   getCustomers,
-  getFilteredCustomers
+  getFilteredCustomers,
+  getInfiniteInvoices
 } from "./query-actions";
 import { createCustomer, updateCustomer, deleteCustomer } from "./actions";
 import { CustomerField } from "./definitions";
@@ -19,6 +20,8 @@ export const queryKeys = {
   cardData: ["dashboard", "cards"] as const,
   invoices: (query?: string, page?: number) => 
     ["invoices", { query, page }] as const,
+  infiniteInvoices: (query: string) =>
+    ["invoices", "infinite", { query }] as const,
   invoicesPages: (query: string) => 
     ["invoices", "pages", query] as const,
   invoice: (id: string) => 
@@ -84,6 +87,17 @@ export function useInvoice(id: string) {
     queryKey: queryKeys.invoice(id),
     queryFn: () => getInvoiceById(id),
     enabled: !!id,
+  });
+}
+
+export function useInfiniteInvoices(query: string) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.infiniteInvoices(query),
+    queryFn: getInfiniteInvoices,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    enabled: query !== undefined,
+    staleTime: 1000 * 60, // 1 minute
   });
 }
 
@@ -213,6 +227,7 @@ export function useDeleteCustomer() {
       queryClient.invalidateQueries({ queryKey: queryKeys.customers });
       queryClient.invalidateQueries({ queryKey: ["customers", "filtered"] });
       queryClient.invalidateQueries({ queryKey: queryKeys.cardData });
+      // Invalidate all invoice-related queries since customer deletion affects invoices
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
     },
   });

@@ -64,8 +64,12 @@ export async function fetchCardData() {
     const customerCountPromise = db.select({ count: count() }).from(customers);
     const invoiceStatusPromise = db
       .select({
-        paid: sum(sql`CASE WHEN ${invoices.status} = 'paid' THEN ${invoices.amount} ELSE 0 END`).mapWith(Number),
-        pending: sum(sql`CASE WHEN ${invoices.status} = 'pending' THEN ${invoices.amount} ELSE 0 END`).mapWith(Number),
+        paid: sum(
+          sql`CASE WHEN ${invoices.status} = 'paid' THEN ${invoices.amount} ELSE 0 END`
+        ).mapWith(Number),
+        pending: sum(
+          sql`CASE WHEN ${invoices.status} = 'pending' THEN ${invoices.amount} ELSE 0 END`
+        ).mapWith(Number),
       })
       .from(invoices);
 
@@ -92,7 +96,7 @@ export async function fetchCardData() {
   }
 }
 
-const ITEMS_PER_PAGE = 2;
+const ITEMS_PER_PAGE = 5;
 export async function fetchFilteredInvoices(
   query: string,
   currentPage: number
@@ -101,7 +105,7 @@ export async function fetchFilteredInvoices(
 
   try {
     const queryPattern = `%${query}%`;
-    
+
     const invoicesList = await preparedStatements.getFilteredInvoices.execute({
       queryPattern,
       limit: ITEMS_PER_PAGE,
@@ -118,7 +122,7 @@ export async function fetchFilteredInvoices(
 export async function fetchInvoicesPages(query: string) {
   try {
     const queryPattern = `%${query}%`;
-    
+
     const data = await db
       .select({ count: count() })
       .from(invoices)
@@ -188,7 +192,7 @@ export async function fetchCustomers() {
 export async function fetchFilteredCustomers(query: string) {
   try {
     const queryPattern = `%${query}%`;
-    
+
     const data = await preparedStatements.getFilteredCustomers.execute({
       queryPattern,
     });

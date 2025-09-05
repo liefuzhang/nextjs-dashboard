@@ -81,6 +81,7 @@ const customers = [
 ];
 
 const invoices = [
+  // Original invoices
   {
     customer_id: customers[0].id,
     amount: 15795,
@@ -158,6 +159,248 @@ const invoices = [
     amount: 1000,
     status: "paid",
     date: "2022-06-05",
+  },
+
+  // Additional invoices for better infinite scroll testing (30+ more invoices)
+  {
+    customer_id: customers[0].id,
+    amount: 12500,
+    status: "paid",
+    date: "2024-01-15",
+  },
+  {
+    customer_id: customers[1].id,
+    amount: 8750,
+    status: "pending",
+    date: "2024-01-20",
+  },
+  {
+    customer_id: customers[2].id,
+    amount: 15600,
+    status: "paid",
+    date: "2024-02-10",
+  },
+  {
+    customer_id: customers[3].id,
+    amount: 22400,
+    status: "pending",
+    date: "2024-02-15",
+  },
+  {
+    customer_id: customers[4].id,
+    amount: 5200,
+    status: "paid",
+    date: "2024-03-05",
+  },
+  {
+    customer_id: customers[5].id,
+    amount: 18900,
+    status: "pending",
+    date: "2024-03-12",
+  },
+  {
+    customer_id: customers[0].id,
+    amount: 9800,
+    status: "paid",
+    date: "2024-04-08",
+  },
+  {
+    customer_id: customers[1].id,
+    amount: 13450,
+    status: "paid",
+    date: "2024-04-18",
+  },
+  {
+    customer_id: customers[2].id,
+    amount: 7300,
+    status: "pending",
+    date: "2024-05-02",
+  },
+  {
+    customer_id: customers[3].id,
+    amount: 25600,
+    status: "paid",
+    date: "2024-05-20",
+  },
+  {
+    customer_id: customers[4].id,
+    amount: 4500,
+    status: "pending",
+    date: "2024-06-01",
+  },
+  {
+    customer_id: customers[5].id,
+    amount: 16200,
+    status: "paid",
+    date: "2024-06-15",
+  },
+  {
+    customer_id: customers[0].id,
+    amount: 11700,
+    status: "pending",
+    date: "2024-07-03",
+  },
+  {
+    customer_id: customers[1].id,
+    amount: 8900,
+    status: "paid",
+    date: "2024-07-22",
+  },
+  {
+    customer_id: customers[2].id,
+    amount: 19400,
+    status: "pending",
+    date: "2024-08-10",
+  },
+  {
+    customer_id: customers[3].id,
+    amount: 6800,
+    status: "paid",
+    date: "2024-08-25",
+  },
+  {
+    customer_id: customers[4].id,
+    amount: 14300,
+    status: "pending",
+    date: "2024-09-05",
+  },
+  {
+    customer_id: customers[5].id,
+    amount: 21500,
+    status: "paid",
+    date: "2024-09-18",
+  },
+  {
+    customer_id: customers[0].id,
+    amount: 3200,
+    status: "pending",
+    date: "2024-10-02",
+  },
+  {
+    customer_id: customers[1].id,
+    amount: 17800,
+    status: "paid",
+    date: "2024-10-15",
+  },
+  {
+    customer_id: customers[2].id,
+    amount: 9200,
+    status: "pending",
+    date: "2024-11-01",
+  },
+  {
+    customer_id: customers[3].id,
+    amount: 12900,
+    status: "paid",
+    date: "2024-11-12",
+  },
+  {
+    customer_id: customers[4].id,
+    amount: 5700,
+    status: "pending",
+    date: "2024-12-05",
+  },
+  {
+    customer_id: customers[5].id,
+    amount: 23100,
+    status: "paid",
+    date: "2024-12-18",
+  },
+  {
+    customer_id: customers[0].id,
+    amount: 8400,
+    status: "pending",
+    date: "2025-01-08",
+  },
+  {
+    customer_id: customers[1].id,
+    amount: 15900,
+    status: "paid",
+    date: "2025-01-22",
+  },
+  {
+    customer_id: customers[2].id,
+    amount: 4800,
+    status: "pending",
+    date: "2025-02-04",
+  },
+  {
+    customer_id: customers[3].id,
+    amount: 18200,
+    status: "paid",
+    date: "2025-02-16",
+  },
+  {
+    customer_id: customers[4].id,
+    amount: 11400,
+    status: "pending",
+    date: "2025-03-01",
+  },
+  {
+    customer_id: customers[5].id,
+    amount: 6900,
+    status: "paid",
+    date: "2025-03-15",
+  },
+  {
+    customer_id: customers[0].id,
+    amount: 20500,
+    status: "pending",
+    date: "2025-04-02",
+  },
+  {
+    customer_id: customers[1].id,
+    amount: 7600,
+    status: "paid",
+    date: "2025-04-20",
+  },
+  {
+    customer_id: customers[2].id,
+    amount: 13800,
+    status: "pending",
+    date: "2025-05-03",
+  },
+  {
+    customer_id: customers[3].id,
+    amount: 9100,
+    status: "paid",
+    date: "2025-05-18",
+  },
+  {
+    customer_id: customers[4].id,
+    amount: 16700,
+    status: "pending",
+    date: "2025-06-05",
+  },
+  {
+    customer_id: customers[5].id,
+    amount: 2400,
+    status: "paid",
+    date: "2025-06-22",
+  },
+  {
+    customer_id: customers[0].id,
+    amount: 14600,
+    status: "pending",
+    date: "2025-07-08",
+  },
+  {
+    customer_id: customers[1].id,
+    amount: 10300,
+    status: "paid",
+    date: "2025-07-25",
+  },
+  {
+    customer_id: customers[2].id,
+    amount: 5500,
+    status: "pending",
+    date: "2025-08-12",
+  },
+  {
+    customer_id: customers[3].id,
+    amount: 19700,
+    status: "paid",
+    date: "2025-08-28",
   },
 ];
 
