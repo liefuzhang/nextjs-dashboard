@@ -32,10 +32,21 @@ export default function NavLinks() {
   const userRole = session?.user?.role;
   const { prefetchForRoute } = usePrefetchOnHover();
   
+  console.log('🔍 NavLinks Debug:', { 
+    session: session ? 'exists' : 'null', 
+    userRole, 
+    sessionUser: session?.user 
+  });
+
+  const filteredLinks = links.filter((link) => {
+    const shouldShow = userRole && link.roles.includes(userRole);
+    console.log(`🔍 Link "${link.name}": userRole="${userRole}", link.roles=${JSON.stringify(link.roles)}, shouldShow=${shouldShow}`);
+    return shouldShow;
+  });
+  
   return (
     <>
-      {links
-        .filter((link) => !userRole || link.roles.includes(userRole))
+      {filteredLinks
         .map((link) => {
           const LinkIcon = link.icon;
           return (
