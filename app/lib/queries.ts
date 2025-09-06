@@ -1,14 +1,19 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
-import { 
-  getRevenue, 
-  getLatestInvoices, 
-  getCardData, 
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
+import {
+  getRevenue,
+  getLatestInvoices,
+  getCardData,
   getFilteredInvoices,
   getInvoicesPages,
   getInvoiceById,
   getCustomers,
   getFilteredCustomers,
-  getInfiniteInvoices
+  getInfiniteInvoices,
 } from "./query-actions";
 import { createCustomer, updateCustomer, deleteCustomer } from "./actions";
 import { CustomerField } from "./definitions";
@@ -19,16 +24,14 @@ export const queryKeys = {
   revenue: ["revenue"] as const,
   latestInvoices: ["invoices", "latest"] as const,
   cardData: ["dashboard", "cards"] as const,
-  invoices: (query?: string, page?: number) => 
+  invoices: (query?: string, page?: number) =>
     ["invoices", { query, page }] as const,
   infiniteInvoices: (query: string) =>
     ["invoices", "infinite", { query }] as const,
-  invoicesPages: (query: string) => 
-    ["invoices", "pages", query] as const,
-  invoice: (id: string) => 
-    ["invoices", id] as const,
+  invoicesPages: (query: string) => ["invoices", "pages", query] as const,
+  invoice: (id: string) => ["invoices", id] as const,
   customers: ["customers"] as const,
-  filteredCustomers: (query: string) => 
+  filteredCustomers: (query: string) =>
     ["customers", "filtered", query] as const,
 };
 
@@ -55,22 +58,22 @@ export function useLatestInvoices() {
 
 export function useCardData() {
   const { prefetchRelatedData } = useSmartPrefetch();
-  
+
   return useQuery({
     queryKey: queryKeys.cardData,
     queryFn: async () => {
       const result = await getCardData();
-      
+
       // Prefetch related data after successful fetch
       prefetchRelatedData(queryKeys.cardData);
-      
+
       return result;
     },
     // Dashboard cards are important metrics - keep them fresh
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     // Refetch every 5 minutes for dashboard overview
-    refetchInterval: 1000 * 60 * 5, 
+    refetchInterval: 1000 * 60 * 5,
   });
 }
 
@@ -114,7 +117,7 @@ export function useInfiniteInvoices(query: string) {
 // Customer Queries
 export function useCustomers() {
   const { prefetchRelatedData } = useSmartPrefetch();
-  
+
   return useQuery({
     queryKey: queryKeys.customers,
     queryFn: async () => {
@@ -122,10 +125,10 @@ export function useCustomers() {
         console.log("Fetching customers...");
         const result = await getCustomers();
         console.log("Customers fetched successfully:", result);
-        
+
         // Prefetch related data after successful fetch
         prefetchRelatedData(queryKeys.customers);
-        
+
         return result;
       } catch (error) {
         console.error("Error fetching customers:", error);
@@ -146,7 +149,7 @@ export function useFilteredCustomers(query: string) {
 // Customer Mutations
 export function useCreateCustomer() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (formData: FormData) => {
       const prevState = { message: null, errors: {} };
@@ -155,27 +158,29 @@ export function useCreateCustomer() {
     onMutate: async (formData: FormData) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.customers });
-      
+
       // Snapshot the previous value
-      const previousCustomers = queryClient.getQueryData<CustomerField[]>(queryKeys.customers);
-      
+      const previousCustomers = queryClient.getQueryData<CustomerField[]>(
+        queryKeys.customers
+      );
+
       // Create optimistic customer object from form data
       const optimisticCustomer = {
         id: `temp-${Date.now()}`, // Temporary ID
-        name: formData.get('name') as string || '',
-        email: formData.get('email') as string || '',
-        phone: formData.get('phone') as string || '',
-        company: formData.get('company') as string || '',
-        location: formData.get('location') as string || '',
-        status: formData.get('status') as 'active' | 'inactive' || 'active',
-        image_url: '/customers/default.png', // Default image until upload completes
+        name: (formData.get("name") as string) || "",
+        email: (formData.get("email") as string) || "",
+        phone: (formData.get("phone") as string) || "",
+        company: (formData.get("company") as string) || "",
+        location: (formData.get("location") as string) || "",
+        status: (formData.get("status") as "active" | "inactive") || "active",
+        image_url: "/customers/default.png", // Default image until upload completes
       };
-      
+
       // Optimistically update the cache
       queryClient.setQueryData<CustomerField[]>(queryKeys.customers, (old) => {
         return old ? [...old, optimisticCustomer] : [optimisticCustomer];
       });
-      
+
       // Return a context object with the snapshotted value
       return { previousCustomers, optimisticCustomer };
     },
@@ -193,9 +198,15 @@ export function useCreateCustomer() {
 
 export function useUpdateCustomer() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ id, formData }: { id: string; formData: FormData }) => {
+    mutationFn: async ({
+      id,
+      formData,
+    }: {
+      id: string;
+      formData: FormData;
+    }) => {
       const prevState = { message: null, errors: {} };
       return await updateCustomer(id, prevState, formData);
     },
@@ -211,7 +222,7 @@ export function useUpdateCustomer() {
 
 export function useDeleteCustomer() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
       return await deleteCustomer(id);
@@ -219,18 +230,20 @@ export function useDeleteCustomer() {
     onMutate: async (id: string) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: queryKeys.customers });
-      
+
       // Snapshot the previous value
-      const previousCustomers = queryClient.getQueryData<CustomerField[]>(queryKeys.customers);
-      
+      const previousCustomers = queryClient.getQueryData<CustomerField[]>(
+        queryKeys.customers
+      );
+
       // Get the customer being deleted for potential rollback
-      const deletedCustomer = previousCustomers?.find(c => c.id === id);
-      
+      const deletedCustomer = previousCustomers?.find((c) => c.id === id);
+
       // Optimistically remove the customer from cache
       queryClient.setQueryData<CustomerField[]>(queryKeys.customers, (old) => {
-        return old?.filter(customer => customer.id !== id) || [];
+        return old?.filter((customer) => customer.id !== id) || [];
       });
-      
+
       // Return context for potential rollback
       return { previousCustomers, deletedCustomer };
     },

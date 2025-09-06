@@ -19,7 +19,6 @@ export default function InfiniteInvoicesTable({ query }: InfiniteInvoicesTablePr
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-    error,
   } = useInfiniteInvoices(query);
 
   if (isLoading) {
@@ -34,17 +33,6 @@ export default function InfiniteInvoicesTable({ query }: InfiniteInvoicesTablePr
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="mt-6 text-center text-red-500">
-        <p>Error loading invoices: {error.message}</p>
-        <Button onClick={() => window.location.reload()} className="mt-4">
-          Retry
-        </Button>
       </div>
     );
   }

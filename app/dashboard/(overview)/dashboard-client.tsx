@@ -10,14 +10,14 @@ import RevenueChart from "@/app/ui/dashboard/revenue-chart";
 import LatestInvoices from "@/app/ui/dashboard/latest-invoices";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QueryStatus } from "@/app/components/query-status";
+import { QueryErrorBoundary, InlineQueryErrorBoundary } from "@/app/components/query-error-boundary";
 
 function DashboardCards() {
-  const { data: cardData, isLoading, error } = useCardData();
+  const { data: cardData, isLoading } = useCardData();
 
   console.log("🎯 Client: Dashboard cards - isLoading:", isLoading, "hasData:", !!cardData);
 
   if (isLoading) return <CardsSkeleton />;
-  if (error) return <div>Error loading dashboard data</div>;
   if (!cardData) return null;
 
   return (
@@ -59,20 +59,18 @@ function DashboardCards() {
 }
 
 function QueryRevenueChart() {
-  const { data: revenue, isLoading, error } = useRevenue();
+  const { data: revenue, isLoading } = useRevenue();
 
   if (isLoading) return <RevenueChartSkeleton />;
-  if (error) return <div>Error loading revenue data</div>;
   if (!revenue) return null;
 
   return <RevenueChart revenue={revenue} />;
 }
 
 function QueryLatestInvoices() {
-  const { data: latestInvoices, isLoading, error } = useLatestInvoices();
+  const { data: latestInvoices, isLoading } = useLatestInvoices();
 
   if (isLoading) return <LatestInvoicesSkeleton />;
-  if (error) return <div>Error loading latest invoices</div>;
   if (!latestInvoices) return null;
 
   return <LatestInvoices latestInvoices={latestInvoices} />;
@@ -85,11 +83,17 @@ export default function DashboardClient() {
       <QueryStatus />
       
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <DashboardCards />
+        <QueryErrorBoundary>
+          <DashboardCards />
+        </QueryErrorBoundary>
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-        <QueryRevenueChart />
-        <QueryLatestInvoices />
+        <InlineQueryErrorBoundary>
+          <QueryRevenueChart />
+        </InlineQueryErrorBoundary>
+        <InlineQueryErrorBoundary>
+          <QueryLatestInvoices />
+        </InlineQueryErrorBoundary>
       </div>
     </>
   );

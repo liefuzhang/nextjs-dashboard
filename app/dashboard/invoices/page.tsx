@@ -6,6 +6,7 @@ import InfiniteInvoicesTable from "@/app/ui/invoices/infinite-table";
 import { useSearchParams } from "next/navigation";
 import Search from "@/app/ui/search";
 import { Suspense } from "react";
+import { QueryErrorBoundary } from "@/app/components/query-error-boundary";
 
 function InvoicesContent() {
   const searchParams = useSearchParams();
@@ -20,7 +21,9 @@ function InvoicesContent() {
         <Search placeholder="Search invoices..." />
         <CreateInvoice />
       </div>
-      <InfiniteInvoicesTable query={query} />
+      <QueryErrorBoundary>
+        <InfiniteInvoicesTable query={query} />
+      </QueryErrorBoundary>
     </div>
   );
 }

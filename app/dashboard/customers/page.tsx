@@ -6,12 +6,13 @@ import ViewToggle from "./view-toggle";
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { QueryErrorBoundary } from "@/app/components/query-error-boundary";
 
 export default function Page() {
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
   
-  const { data: customers, isLoading, error } = useCustomers();
+  const { data: customers, isLoading } = useCustomers();
 
   const filteredCustomers = useMemo(() => {
     if (!customers) return [];
@@ -42,29 +43,15 @@ export default function Page() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto p-8">
-        <div className="text-center text-red-500">
-          <p>Error loading customers: {error.message}</p>
-          <Button 
-            onClick={() => window.location.reload()} 
-            className="mt-4"
-          >
-            Retry
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto p-8">
       <div className="mb-6">
         <SearchInput />
       </div>
 
-      <ViewToggle customers={filteredCustomers} />
+      <QueryErrorBoundary>
+        <ViewToggle customers={filteredCustomers} />
+      </QueryErrorBoundary>
     </div>
   );
 }
