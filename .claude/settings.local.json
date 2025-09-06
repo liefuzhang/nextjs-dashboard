@@ -13,7 +13,11 @@
       "Read(/D:\\My Projects\\nextjs-dashboard\\db/**)",
       "Read(/D:\\My Projects\\nextjs-dashboard/**)",
       "Read(/D:\\My Projects\\nextjs-dashboard\\app/**)",
-      "Read(/D:\\My Projects\\nextjs-dashboard\\app\\components/**)"
+      "Read(/D:\\My Projects\\nextjs-dashboard\\app\\components/**)",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_wait_for",
+      "Bash(pnpm add:*)"
     ],
     "deny": [],
     "ask": []

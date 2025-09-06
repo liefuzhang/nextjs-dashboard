@@ -12,7 +12,16 @@ import { useSession } from "@/app/lib/hooks/useSession";
 import { usePrefetchOnHover } from "@/app/lib/prefetch";
 import clsx from "clsx";
 import { useEffect, useRef } from "react";
-import { Session } from "next-auth";
+
+// Define a simple session type that matches our useSession return structure
+type SessionData = {
+  user: {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    role?: 'admin' | 'user';
+  }
+};
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
@@ -44,7 +53,7 @@ export default function NavLinks() {
   const { prefetchForRoute } = usePrefetchOnHover();
 
   // Keep last known session to avoid UI flicker during background refreshes
-  const lastSessionRef = useRef<Session>(null);
+  const lastSessionRef = useRef<SessionData | null>(null);
   useEffect(() => {
     if (session) {
       lastSessionRef.current = session;

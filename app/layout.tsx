@@ -3,6 +3,7 @@ import { inter } from "@/app/ui/fonts";
 import { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/app/components/providers";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: {
@@ -19,13 +20,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased`}>
-        <Providers>
-          {children}
-        </Providers>
-        <Toaster />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${inter.className} antialiased`}>
+          <Providers>
+            {children}
+          </Providers>
+          <Toaster />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,10 +1,8 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider, HydrationBoundary, DehydratedState } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
-import { SessionRefresher } from "./session-refresher";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -64,14 +62,11 @@ export function Providers({ children, dehydratedState }: ProvidersProps) {
   }));
 
   return (
-    <SessionProvider>
-      <SessionRefresher />
-      <QueryClientProvider client={queryClient}>
-        <HydrationBoundary state={dehydratedState}>
-          {children}
-        </HydrationBoundary>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </SessionProvider>
+    <QueryClientProvider client={queryClient}>
+      <HydrationBoundary state={dehydratedState}>
+        {children}
+      </HydrationBoundary>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }

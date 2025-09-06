@@ -3,8 +3,6 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { signIn } from "@/auth";
-import { AuthError } from "next-auth";
 import { saveUploadedFile, getFileFromFormData } from "./file-upload";
 import { db, withTransaction } from "@/db";
 import { customers, invoices } from "@/db/schema";
@@ -162,24 +160,8 @@ export async function deleteInvoice(id: string) {
   revalidatePath("/dashboard/invoices");
 }
 
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData
-) {
-  try {
-    await signIn("credentials", formData);
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return "Invalid credentials.";
-        default:
-          return "Something went wrong.";
-      }
-    }
-    throw error;
-  }
-}
+// Authentication is now handled by Clerk components
+// The authenticate function is no longer needed
 
 // Customer server actions
 export async function createCustomer(

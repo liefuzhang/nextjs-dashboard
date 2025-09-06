@@ -1,15 +1,39 @@
-import NextAuth from "next-auth"
-import { authConfig } from "./auth.config"
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default NextAuth(authConfig).auth;
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/admin(.*)',
+  '/profile(.*)',
+  '/settings(.*)',
+  '/api/((?!auth|seed).*)', // Protect API routes except auth and seed
+]);
+
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+]);
+
+const isAdminRoute = createRouteMatcher(['/admin(.*)']);
+
+export default clerkMiddleware(async (auth, req) => {
+  // Protect routes that require authentication
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+  }
+
+  // Admin route protection
+  if (isAdminRoute(req)) {
+    await auth.protect((has) => {
+      return has({ role: 'admin' });
+    });
+  }
+});
 
 export const config = {
-  // Protect all routes except:
-  // - API routes that don't need authentication
-  // - Static files (_next/static, images)
-  // - Auth API routes (handled by NextAuth)
-  // - Public pages (login, signup, etc.)
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|.*\\.png$|login|signup|$).*)"
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
   ],
 };
