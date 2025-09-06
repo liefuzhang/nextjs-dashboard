@@ -1,9 +1,9 @@
-import { auth } from "@/auth";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
-  const session = await auth();
+  const { sessionClaims, userId } = await auth();
   
-  if (!session) {
+  if (!userId) {
     return Response.json(
       { error: "Authentication required" },
       { status: 401 }
@@ -12,7 +12,7 @@ export async function GET() {
 
   return Response.json({
     message: "This is a protected API route",
-    user: session.user?.email,
+    user: sessionClaims?.email,
     timestamp: new Date().toISOString()
   });
 }

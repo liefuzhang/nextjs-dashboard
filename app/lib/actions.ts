@@ -160,8 +160,6 @@ export async function deleteInvoice(id: string) {
   revalidatePath("/dashboard/invoices");
 }
 
-// Authentication is now handled by Clerk components
-// The authenticate function is no longer needed
 
 // Customer server actions
 export async function createCustomer(

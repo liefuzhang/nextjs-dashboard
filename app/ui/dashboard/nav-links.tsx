@@ -55,17 +55,17 @@ export default function NavLinks() {
   // Keep last known session to avoid UI flicker during background refreshes
   const lastSessionRef = useRef<SessionData | null>(null);
   useEffect(() => {
-    if (session) {
+    if (status !== "loading") {
       lastSessionRef.current = session;
     }
-  }, [session]);
+  }, [session, status]);
 
-  const effectiveSession = session ?? lastSessionRef.current;
+  const effectiveSession = status === "loading" ? lastSessionRef.current : session;
   const userRole = effectiveSession?.user?.role;
 
-  // Only show login when we know the user is unauthenticated
+  // Only show sign-in message when we know the user is unauthenticated
   if (status === "unauthenticated") {
-    return <div>Please log in</div>;
+    return <div>Please sign in</div>;
   }
 
   const filteredLinks = links.filter((link) => {

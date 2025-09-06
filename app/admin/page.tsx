@@ -1,20 +1,22 @@
-import { auth } from "@/auth";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
-  const session = await auth();
+  const { sessionClaims, userId } = await auth();
 
   // This should be handled by middleware, but adding extra check for security
-  if (!session?.user || session.user.role !== "admin") {
+  if (!userId || sessionClaims?.metadata?.role !== "admin") {
     redirect("/dashboard");
   }
+
+  const user = await currentUser();
 
   return (
     <div className="p-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-600">
-          Welcome to the admin area, {session.user.name}!
+          Welcome to the admin area, {user.fullName || user.firstName}!
         </p>
       </div>
 
@@ -56,7 +58,7 @@ export default async function AdminPage() {
         <h3 className="text-red-800 font-semibold mb-2">Admin Only Content</h3>
         <p className="text-red-700">
           This content is only visible to users with admin role. Your role:{" "}
-          <strong>{session.user.role}</strong>
+          <strong>{sessionClaims?.metadata?.role as string}</strong>
         </p>
       </div>
     </div>
