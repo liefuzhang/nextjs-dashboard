@@ -42,14 +42,6 @@ export default function NavLinks() {
   const userRole = session?.user?.role;
   const { prefetchForRoute } = usePrefetchOnHover();
 
-  console.log("🔍 NavLinks Debug:", {
-    status,
-    session: session ? "exists" : "null",
-    userRole,
-    sessionUser: session?.user,
-    fullSession: session,
-  });
-
   // Show loading state while session is loading
   if (status === "loading") {
     return <div>Loading nav...</div>;
@@ -57,21 +49,12 @@ export default function NavLinks() {
 
   // Show fallback if no session (unauthenticated)
   if (status === "unauthenticated" || !session) {
-    console.log("🔍 No session - user not authenticated");
     return <div>Please log in</div>;
   }
 
   const filteredLinks = links.filter((link) => {
     // Show links for users that have any of the required roles
-    const shouldShow = userRole && link.roles.includes(userRole);
-    console.log(
-      `🔍 Link "${
-        link.name
-      }": userRole="${userRole}", link.roles=${JSON.stringify(
-        link.roles
-      )}, shouldShow=${shouldShow}`
-    );
-    return shouldShow;
+    return userRole ? link.roles.includes(userRole) : false;
   });
 
   return (

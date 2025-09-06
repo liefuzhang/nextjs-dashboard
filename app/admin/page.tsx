@@ -4,8 +4,6 @@ import { redirect } from "next/navigation";
 export default async function AdminPage() {
   const session = await auth();
 
-  console.log(session);
-
   // This should be handled by middleware, but adding extra check for security
   if (!session?.user || session.user.role !== "admin") {
     redirect("/dashboard");
