@@ -5,6 +5,7 @@ import {
   HomeIcon,
   DocumentDuplicateIcon,
   CogIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -43,6 +44,12 @@ const links = [
     href: "/dashboard/customers",
     icon: UserGroupIcon,
     roles: ["user", "admin"],
+  },
+  {
+    name: "Profile", 
+    href: "/profile", 
+    icon: UserIcon, 
+    roles: ["user", "admin"]
   },
   { name: "Admin", href: "/admin", icon: CogIcon, roles: ["admin"] },
 ];
