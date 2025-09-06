@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useActionState } from "react";
 import { updateUserProfile, type ProfileActionResult } from "@/app/lib/profile-actions";
 
 interface ProfileData {
@@ -18,7 +18,7 @@ interface ProfileFormProps {
   userId: string;
 }
 
-export default function ProfileForm({ initialData, userId }: ProfileFormProps) {
+export default function ProfileForm({ initialData }: ProfileFormProps) {
   const [state, formAction, isPending] = useActionState<ProfileActionResult, FormData>(
     updateUserProfile,
     {}

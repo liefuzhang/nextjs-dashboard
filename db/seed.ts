@@ -1,11 +1,10 @@
 import { db } from "./index";
-import { customers, invoices, revenue, products, users } from "./schema";
+import { customers, invoices, revenue, products } from "./schema";
 import {
   customers as customersData,
   invoices as invoicesData,
   revenue as revenueData,
   products as productsData,
-  users as usersData,
 } from "../app/lib/placeholder-data";
 
 async function seedCustomers() {
