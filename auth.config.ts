@@ -6,15 +6,31 @@ export const authConfig = {
   },
   callbacks: {
     jwt({ token, user }) {
+      console.log("🔍 JWT callback debug:", {
+        hasUser: !!user,
+        userRole: user?.role,
+        tokenRole: token.role
+      });
+      
       if (user?.role) {
         token.role = user.role;
       }
       return token;
     },
     session({ session, token }) {
+      console.log("🔍 Session callback debug:", {
+        tokenRole: token?.role,
+        sessionUserRole: session.user.role
+      });
+      
       if (token?.role) {
         session.user.role = token.role as 'admin' | 'user';
       }
+      
+      console.log("🔍 Final session:", {
+        sessionUserRole: session.user.role
+      });
+      
       return session;
     },
     authorized({ auth, request: { nextUrl } }) {
