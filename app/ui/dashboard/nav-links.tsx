@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "@/app/lib/hooks/useSession";
 import { usePrefetchOnHover } from "@/app/lib/prefetch";
 import clsx from "clsx";
+import { useEffect, useRef } from "react";
 
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
@@ -39,16 +40,21 @@ const links = [
 export default function NavLinks() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
-  const userRole = session?.user?.role;
   const { prefetchForRoute } = usePrefetchOnHover();
 
-  // Show loading state while session is loading
-  if (status === "loading") {
-    return <div>Loading nav...</div>;
-  }
+  // Keep last known session to avoid UI flicker during background refreshes
+  const lastSessionRef = useRef<any>(null);
+  useEffect(() => {
+    if (session) {
+      lastSessionRef.current = session;
+    }
+  }, [session]);
 
-  // Show fallback if no session (unauthenticated)
-  if (status === "unauthenticated" || !session) {
+  const effectiveSession = session ?? lastSessionRef.current;
+  const userRole = effectiveSession?.user?.role;
+
+  // Only show login when we know the user is unauthenticated
+  if (status === "unauthenticated") {
     return <div>Please log in</div>;
   }
 
