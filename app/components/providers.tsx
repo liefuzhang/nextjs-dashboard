@@ -1,13 +1,13 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { QueryClient, QueryClientProvider, HydrationBoundary } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, HydrationBoundary, DehydratedState } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 
 interface ProvidersProps {
   children: React.ReactNode;
-  dehydratedState?: unknown;
+  dehydratedState?: DehydratedState;
 }
 
 export function Providers({ children, dehydratedState }: ProvidersProps) {
