@@ -23,9 +23,14 @@ export default clerkMiddleware(async (auth, req) => {
 
   // Admin route protection
   if (isAdminRoute(req)) {
-    await auth.protect((has) => {
-      return has({ role: 'admin' });
-    });
+    await auth.protect();
+    
+    // Additional check for admin role using session claims
+    const { sessionClaims } = await auth();
+    if (sessionClaims?.metadata?.role !== 'admin') {
+      const signInUrl = new URL('/sign-in', req.url);
+      return Response.redirect(signInUrl);
+    }
   }
 });
 

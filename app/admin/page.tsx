@@ -26,7 +26,7 @@ export default async function AdminPage() {
             User Management
           </h2>
           <p className="text-gray-600 mb-4">Manage user accounts and roles</p>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          <button type="button" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
             Manage Users
           </button>
         </div>
@@ -36,7 +36,7 @@ export default async function AdminPage() {
             System Settings
           </h2>
           <p className="text-gray-600 mb-4">Configure application settings</p>
-          <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          <button type="button" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
             Settings
           </button>
         </div>
@@ -48,7 +48,7 @@ export default async function AdminPage() {
           <p className="text-gray-600 mb-4">
             View system analytics and reports
           </p>
-          <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+          <button type="button" className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
             View Analytics
           </button>
         </div>
