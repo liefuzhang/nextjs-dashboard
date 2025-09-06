@@ -182,6 +182,8 @@ export async function fetchCustomers() {
       .from(customers)
       .orderBy(asc(customers.name));
 
+    console.log("fetchCustomers completed");
+
     return customersList;
   } catch (err) {
     console.error("Database Error:", err);

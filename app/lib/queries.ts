@@ -12,6 +12,7 @@ import {
 } from "./query-actions";
 import { createCustomer, updateCustomer, deleteCustomer } from "./actions";
 import { CustomerField } from "./definitions";
+import { useSmartPrefetch } from "./prefetch";
 
 // Query Keys - centralized for consistency
 export const queryKeys = {
@@ -53,9 +54,18 @@ export function useLatestInvoices() {
 }
 
 export function useCardData() {
+  const { prefetchRelatedData } = useSmartPrefetch();
+  
   return useQuery({
     queryKey: queryKeys.cardData,
-    queryFn: getCardData,
+    queryFn: async () => {
+      const result = await getCardData();
+      
+      // Prefetch related data after successful fetch
+      prefetchRelatedData(queryKeys.cardData);
+      
+      return result;
+    },
     // Dashboard cards are important metrics - keep them fresh
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -103,6 +113,8 @@ export function useInfiniteInvoices(query: string) {
 
 // Customer Queries
 export function useCustomers() {
+  const { prefetchRelatedData } = useSmartPrefetch();
+  
   return useQuery({
     queryKey: queryKeys.customers,
     queryFn: async () => {
@@ -110,6 +122,10 @@ export function useCustomers() {
         console.log("Fetching customers...");
         const result = await getCustomers();
         console.log("Customers fetched successfully:", result);
+        
+        // Prefetch related data after successful fetch
+        prefetchRelatedData(queryKeys.customers);
+        
         return result;
       } catch (error) {
         console.error("Error fetching customers:", error);
