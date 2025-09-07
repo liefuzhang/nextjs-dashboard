@@ -4,6 +4,7 @@ import { lusitana } from "@/app/ui/fonts";
 import {
   AtSymbolIcon,
   KeyIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
 import { Button } from "./button";
@@ -13,11 +14,11 @@ import Link from "next/link";
 import { FormField } from "./auth/form-field";
 import { MessageDisplay } from "./auth/message-display";
 import { SocialLoginButton } from "./auth/social-login-button";
-import { handleSignIn, handleMagicLinkSignIn } from "@/app/lib/auth-actions";
+import { handleSignUp, handleMagicLinkSignIn } from "@/app/lib/auth-actions";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginForm() {
+export default function SignUpForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/dashboard";
   const errorMessage = searchParams.get("error");
@@ -45,7 +46,7 @@ export default function LoginForm() {
   return (
     <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
       <h1 className={`${lusitana.className} mb-3 text-2xl`}>
-        Please log in to continue.
+        Create your account
       </h1>
 
       <Tabs defaultValue="password" className="w-full">
@@ -55,9 +56,18 @@ export default function LoginForm() {
         </TabsList>
 
         <TabsContent value="password" className="space-y-3">
-          <form action={handleSignIn} className="space-y-3">
+          <form action={handleSignUp} className="space-y-3">
             <input type="hidden" name="redirectTo" value={redirectTo} />
             <div className="w-full space-y-4">
+              <FormField
+                label="Full Name"
+                id="fullName"
+                name="fullName"
+                type="text"
+                placeholder="Enter your full name"
+                required
+                icon={UserIcon}
+              />
               <FormField
                 label="Email"
                 id="email"
@@ -77,9 +87,19 @@ export default function LoginForm() {
                 minLength={6}
                 icon={KeyIcon}
               />
+              <FormField
+                label="Confirm Password"
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm password"
+                required
+                minLength={6}
+                icon={KeyIcon}
+              />
             </div>
             <Button type="submit" className="mt-4 w-full">
-              Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+              Sign up <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
             </Button>
           </form>
         </TabsContent>
@@ -99,16 +119,16 @@ export default function LoginForm() {
               />
             </div>
             <Button type="submit" className="mt-4 w-full">
-              Send Magic Link <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+              Send Sign Up Link <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
             </Button>
             <p className="text-sm text-gray-600 text-center">
-              We&apos;ll send you a secure link to sign in without a password.
+              We&apos;ll send you a secure link to create your account.
             </p>
           </form>
         </TabsContent>
       </Tabs>
 
-      {/* Social Login - Always Visible */}
+      {/* Social Sign Up - Always Visible */}
       <div className="mt-6">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -128,15 +148,15 @@ export default function LoginForm() {
 
       <MessageDisplay errorMessage={errorMessage} successMessage={successMessage} />
 
-      {/* Sign Up Link */}
+      {/* Login Link */}
       <div className="mt-4 text-center">
         <p className="text-sm text-gray-600">
-          Don&apos;t have an account?{" "}
+          Already have an account?{" "}
           <Link 
-            href={`/signup${searchParams.get("redirectTo") ? `?redirectTo=${searchParams.get("redirectTo")}` : ""}`}
+            href={`/login${searchParams.get("redirectTo") ? `?redirectTo=${searchParams.get("redirectTo")}` : ""}`}
             className="text-blue-600 hover:text-blue-500 underline"
           >
-            Sign up
+            Sign in
           </Link>
         </p>
       </div>
