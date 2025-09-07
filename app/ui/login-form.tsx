@@ -8,19 +8,78 @@ import {
 } from "@heroicons/react/24/outline";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
 import { Button } from "./button";
-import { useActionState } from "react";
-import { authenticate } from "@/app/lib/actions";
-import { useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined
-  );
+  const router = useRouter();
+  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const supabase = createClient();
+
+  const handleEmailPasswordLogin = async (formData: FormData) => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setErrorMessage(error.message);
+    } else {
+      router.push(redirectTo);
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleMagicLinkLogin = async (formData: FormData) => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    
+    const email = formData.get("email") as string;
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`,
+      },
+    });
+
+    if (error) {
+      setErrorMessage(error.message);
+    } else {
+      setErrorMessage("Check your email for the login link!");
+    }
+    
+    setIsLoading(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?redirectTo=${redirectTo}`,
+      },
+    });
+
+    if (error) {
+      setErrorMessage(error.message);
+    }
+    
+    setIsLoading(false);
+  };
 
   return (
     <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
@@ -35,7 +94,7 @@ export default function LoginForm() {
         </TabsList>
 
         <TabsContent value="password" className="space-y-3">
-          <form action={formAction} className="space-y-3">
+          <form action={handleEmailPasswordLogin} className="space-y-3">
             <div className="w-full">
               <div>
                 <label
@@ -77,21 +136,14 @@ export default function LoginForm() {
                 </div>
               </div>
             </div>
-            <input type="hidden" name="redirectTo" value={callbackUrl} />
-            <Button className="mt-4 w-full" aria-disabled={isPending}>
-              Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+            <Button className="mt-4 w-full" aria-disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Log in"} <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
             </Button>
           </form>
         </TabsContent>
 
         <TabsContent value="magic" className="space-y-3">
-          <form
-            action={(formData: FormData) => {
-              const email = formData.get("email") as string;
-              signIn("resend", { email, callbackUrl });
-            }}
-            className="space-y-3"
-          >
+          <form action={handleMagicLinkLogin} className="space-y-3">
             <div className="w-full">
               <div>
                 <label
@@ -113,8 +165,8 @@ export default function LoginForm() {
                 </div>
               </div>
             </div>
-            <Button type="submit" className="mt-4 w-full">
-              Send Magic Link{" "}
+            <Button type="submit" className="mt-4 w-full" disabled={isLoading}>
+              {isLoading ? "Sending..." : "Send Magic Link"}{" "}
               <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
             </Button>
             <p className="text-sm text-gray-600 text-center">
@@ -139,7 +191,8 @@ export default function LoginForm() {
 
         <Button
           type="button"
-          onClick={() => signIn("google", { callbackUrl })}
+          onClick={handleGoogleLogin}
+          disabled={isLoading}
           className="mt-3 w-full !bg-white !border !border-gray-300 !text-gray-700 hover:!bg-gray-50 focus:!ring-2 focus:!ring-offset-2 focus:!ring-gray-500 !font-medium"
         >
           <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
