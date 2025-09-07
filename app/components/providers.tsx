@@ -1,10 +1,10 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider, HydrationBoundary, DehydratedState } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
-import { SessionRefresher } from "./session-refresher";
+import { createClient } from "@/lib/supabase/client";
+import { SupabaseAuthProvider } from "./supabase-auth-provider";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -63,15 +63,16 @@ export function Providers({ children, dehydratedState }: ProvidersProps) {
     },
   }));
 
+  const supabase = createClient();
+
   return (
-    <SessionProvider>
-      <SessionRefresher />
+    <SupabaseAuthProvider supabase={supabase}>
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={dehydratedState}>
           {children}
         </HydrationBoundary>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </SessionProvider>
+    </SupabaseAuthProvider>
   );
 }

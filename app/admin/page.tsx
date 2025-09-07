@@ -1,11 +1,13 @@
-import { auth } from "@/auth";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getUserRole, getUserName } from "@/lib/supabase/types";
 
 export default async function AdminPage() {
-  const session = await auth();
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
   // This should be handled by middleware, but adding extra check for security
-  if (!session?.user || session.user.role !== "admin") {
+  if (error || !user || getUserRole(user) !== "admin") {
     redirect("/dashboard");
   }
 
@@ -14,7 +16,7 @@ export default async function AdminPage() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-600">
-          Welcome to the admin area, {session.user.name}!
+          Welcome to the admin area, {getUserName(user)}!
         </p>
       </div>
 
@@ -56,7 +58,7 @@ export default async function AdminPage() {
         <h3 className="text-red-800 font-semibold mb-2">Admin Only Content</h3>
         <p className="text-red-700">
           This content is only visible to users with admin role. Your role:{" "}
-          <strong>{session.user.role}</strong>
+          <strong>{getUserRole(user)}</strong>
         </p>
       </div>
     </div>

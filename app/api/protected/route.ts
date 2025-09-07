@@ -1,9 +1,10 @@
-import { auth } from "@/auth";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
-  const session = await auth();
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
   
-  if (!session) {
+  if (error || !user) {
     return Response.json(
       { error: "Authentication required" },
       { status: 401 }
@@ -12,7 +13,7 @@ export async function GET() {
 
   return Response.json({
     message: "This is a protected API route",
-    user: session.user?.email,
+    user: user.email,
     timestamp: new Date().toISOString()
   });
 }

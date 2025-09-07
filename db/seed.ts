@@ -1,13 +1,11 @@
 import { db } from './index';
-import { customers, invoices, revenue, products, users } from './schema';
+import { customers, invoices, revenue, products } from './schema';
 import { 
   customers as customersData, 
   invoices as invoicesData, 
   revenue as revenueData,
-  products as productsData,
-  users as usersData 
+  products as productsData
 } from '../app/lib/placeholder-data';
-import bcrypt from 'bcrypt';
 import postgres from 'postgres';
 
 async function seedCustomers() {
@@ -126,45 +124,13 @@ async function seedProducts() {
   }
 }
 
-async function seedUsers() {
-  try {
-    console.log('Seeding users...');
-    
-    const hashedUsers = await Promise.all(
-      usersData.map(async (user) => ({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        password: await bcrypt.hash(user.password, 10),
-        role: user.role,
-      }))
-    );
-    
-    const insertedUsers = await db
-      .insert(users)
-      .values(hashedUsers)
-      .onConflictDoUpdate({
-        target: users.email,
-        set: {
-          name: hashedUsers[0].name,
-          role: hashedUsers[0].role,
-        }
-      })
-      .returning();
-    
-    console.log(`✅ Seeded ${insertedUsers.length} users`);
-    return insertedUsers;
-  } catch (error) {
-    console.error('❌ Error seeding users:', error);
-    throw error;
-  }
-}
+// Users are now managed by Supabase Auth - no local user seeding needed
 
 async function main() {
   try {
     console.log('🌱 Starting database seeding with Drizzle ORM...');
     
-    await seedUsers();
+    // Note: Users are now managed by Supabase Auth
     await seedCustomers();
     await seedInvoices();
     await seedRevenue();
