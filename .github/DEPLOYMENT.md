@@ -78,7 +78,17 @@ Set up environment protection rules in GitHub:
 
 ## Notes
 
-- All workflows cache pnpm dependencies for faster builds
+- All workflows use `--no-frozen-lockfile` to handle pnpm configuration mismatches
 - Database migrations run before deployments to ensure schema compatibility
 - Production deployments require manual approval for safety
 - Schema drift checking helps catch potential migration issues early
+
+## Troubleshooting
+
+### Pnpm Lockfile Mismatch
+If you see `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH`, run locally:
+```bash
+pnpm install --no-frozen-lockfile
+git add pnpm-lock.yaml
+git commit -m "Fix pnpm lockfile configuration mismatch"
+```
