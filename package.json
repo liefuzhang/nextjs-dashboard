@@ -6,12 +6,12 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx db/migrate.ts",
-    "db:migrate:status": "tsx db/migrate.ts status",
+    "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx db/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "db:reset": "drizzle-kit drop && pnpm db:migrate && pnpm db:seed"
+    "db:reset": "drizzle-kit drop && pnpm db:push && pnpm db:seed",
+    "db:fix-migrations": "tsx scripts/fix-migrations.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

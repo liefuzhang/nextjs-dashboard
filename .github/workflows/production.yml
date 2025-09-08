@@ -42,14 +42,8 @@ jobs:
     - name: Install dependencies
       run: pnpm install --no-frozen-lockfile
 
-    - name: Check database migration status (optional)
-      run: pnpm db:migrate:status || echo "⚠️ Migration status check failed or not available"
-      env:
-        POSTGRES_URL_NON_POOLING: ${{ secrets.PROD_POSTGRES_URL_NON_POOLING }}
-      continue-on-error: true
-
-    - name: Run production database migrations
-      run: pnpm db:migrate
+    - name: Push production database schema
+      run: pnpm db:push
       env:
         POSTGRES_URL_NON_POOLING: ${{ secrets.PROD_POSTGRES_URL_NON_POOLING }}
 
