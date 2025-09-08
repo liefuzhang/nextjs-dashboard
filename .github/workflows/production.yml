@@ -1,0 +1,71 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    environment: 
+      name: production
+      url: https://your-production-domain.com
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Check database migration status (optional)
+      run: pnpm db:migrate:status || echo "⚠️ Migration status check failed or not available"
+      env:
+        POSTGRES_URL_NON_POOLING: ${{ secrets.PROD_POSTGRES_URL_NON_POOLING }}
+      continue-on-error: true
+
+    - name: Run production database migrations
+      run: pnpm db:migrate
+      env:
+        POSTGRES_URL_NON_POOLING: ${{ secrets.PROD_POSTGRES_URL_NON_POOLING }}
+
+    - name: Trigger Vercel production deployment
+      run: |
+        if [ -n "${{ secrets.VERCEL_PRODUCTION_DEPLOY_HOOK }}" ]; then
+          curl -X POST "${{ secrets.VERCEL_PRODUCTION_DEPLOY_HOOK }}"
+          echo "✅ Production deployment triggered via Vercel Deploy Hook"
+        else
+          echo "⚠️ VERCEL_PRODUCTION_DEPLOY_HOOK secret not configured"
+          echo "🚀 Vercel will auto-deploy main branch to production"
+        fi
+
+    - name: Deployment summary
+      run: |
+        echo "🎉 Production deployment completed successfully!"
+        echo "📊 Database migrations applied"
+        echo "🚀 Application deployment triggered"
+        echo "🌐 Check your production URL for the updated application"

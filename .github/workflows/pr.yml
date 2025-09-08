@@ -1,0 +1,60 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  pr-checks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Run ESLint
+      run: pnpm lint
+
+    - name: Run TypeScript checks
+      run: npx tsc --noEmit
+
+    - name: Run tests
+      run: echo "No tests configured - skipping test step"
+
+    - name: Build application
+      run: pnpm build
+      env:
+        # Use dummy values for build-time env vars to avoid secrets in PR builds
+        POSTGRES_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+        POSTGRES_URL_NON_POOLING: "postgresql://dummy:dummy@localhost:5432/dummy"
+        NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
+        SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key"
+        BLOB_READ_WRITE_TOKEN: "dummy-blob-token"
