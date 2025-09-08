@@ -67,6 +67,7 @@ Set up environment protection rules in GitHub:
 
 ## Setup Checklist
 
+- [ ] **Fix pnpm lockfile** - Run `pnpm install --no-frozen-lockfile` locally to regenerate lockfile
 - [ ] Add required GitHub secrets
 - [ ] Set up production environment protection rules
 - [ ] Configure Vercel auto-deployment for develop → staging
