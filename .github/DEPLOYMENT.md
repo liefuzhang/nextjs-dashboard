@@ -78,9 +78,9 @@ Set up environment protection rules in GitHub:
 ## Notes
 
 - All workflows use `--no-frozen-lockfile` to handle pnpm configuration mismatches
-- Database migrations run before deployments to ensure schema compatibility
+- Database schema is pushed using `drizzle-kit push` for reliable schema synchronization
 - Production deployments require manual approval for safety
-- Schema drift checking helps catch potential migration issues early
+- `drizzle-kit push` automatically detects and applies only necessary schema changes
 
 ## Troubleshooting
 
