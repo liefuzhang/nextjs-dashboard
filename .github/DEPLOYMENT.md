@@ -48,8 +48,8 @@ Set up environment protection rules in GitHub:
 ### Staging Workflow (`staging.yml`)
 
 - **Trigger**: Push to `develop` branch
-- **Actions**: Install dependencies, run migrations using `pnpm db:migrate`
-- **Migration**: Uses existing `tsx db/migrate.ts` script with staging database URL
+- **Actions**: Install dependencies, push schema changes using `pnpm db:push`
+- **Schema sync**: Uses `drizzle-kit push` with staging database URL
 - **Auto-deployment**: Vercel automatically deploys develop branch
 - **URL**: staging.example.com (configure in Vercel)
 
@@ -59,10 +59,9 @@ Set up environment protection rules in GitHub:
 - **Protection**: Requires manual approval (environment protection)
 - **Actions**:
   1. Install dependencies
-  2. Check migration status using `pnpm db:migrate:status` (optional)
-  3. Run production migrations using `pnpm db:migrate`
+  2. Push production schema using `pnpm db:push`
   4. Trigger Vercel deployment
-- **Migration**: Uses existing `tsx db/migrate.ts` script with production database URL
+- **Schema sync**: Uses `drizzle-kit push` with production database URL
 - **Manual approval required** before execution
 
 ## Setup Checklist
