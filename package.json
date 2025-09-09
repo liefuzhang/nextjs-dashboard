@@ -8,7 +8,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx db/seed.ts",
+    "db:seed": "tsx db/seed-pg.ts",
     "db:studio": "drizzle-kit studio",
     "db:reset": "drizzle-kit drop && pnpm db:push && pnpm db:seed",
     "db:fix-migrations": "tsx scripts/fix-migrations.ts"
@@ -56,12 +56,14 @@
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.86.0",
     "@types/node": "22.10.7",
+    "@types/pg": "^8.15.5",
     "@types/react": "19.0.7",
     "@types/react-dom": "19.0.3",
     "dotenv": "^17.2.2",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9.34.0",
     "eslint-config-next": "15.5.2",
+    "pg": "^8.16.3",
     "tsx": "^4.20.5"
   },
   "pnpm": {
