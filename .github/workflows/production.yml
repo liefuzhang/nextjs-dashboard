@@ -44,6 +44,8 @@ jobs:
 
     - name: Validate migration files
       run: pnpm drizzle-kit check --config=drizzle.config.ts
+      env:
+        POSTGRES_URL_NON_POOLING: ${{ secrets.PROD_POSTGRES_URL_NON_POOLING }}
 
     - name: Run production database migrations
       run: pnpm db:migrate

@@ -6,7 +6,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "tsx db/migrate.ts",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx db/seed-pg.ts",
     "db:studio": "drizzle-kit studio",
