@@ -57,10 +57,7 @@ export async function updateSession(request: NextRequest) {
       return supabaseResponse
     }
 
-    // Allow seed route for development (remove in production)
-    if (pathname.startsWith('/api/seed')) {
-      return supabaseResponse
-    }
+    // Legacy /api/seed route removed; no special handling needed
 
     // Admin API routes
     if (pathname.startsWith('/api/admin')) {
