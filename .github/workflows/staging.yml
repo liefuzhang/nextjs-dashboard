@@ -1,0 +1,51 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 8
+        run_install: false
+
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install --no-frozen-lockfile
+
+    - name: Push database schema changes
+      run: pnpm db:push
+      env:
+        POSTGRES_URL_NON_POOLING: ${{ secrets.STAGING_POSTGRES_URL_NON_POOLING }}
+
+    - name: Trigger Vercel deployment
+      run: |
+        echo "✅ Staging database migrations completed"
+        echo "🚀 Vercel will auto-deploy develop branch to staging.example.com"
+        echo "📊 Deployment will be available at the staging URL shortly"
