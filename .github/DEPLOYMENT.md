@@ -48,8 +48,9 @@ Set up environment protection rules in GitHub:
 ### Staging Workflow (`staging.yml`)
 
 - **Trigger**: Push to `develop` branch
-- **Actions**: Install dependencies, push schema changes using `pnpm db:push`
-- **Schema sync**: Uses `drizzle-kit push` with staging database URL
+- **Actions**: Install dependencies, validate migrations, run migrations using `pnpm db:migrate`
+- **Validation**: Uses `drizzle-kit check` to validate migration files before applying
+- **Migration**: Uses `drizzle-kit migrate` with staging database URL
 - **Auto-deployment**: Vercel automatically deploys develop branch
 - **URL**: staging.example.com (configure in Vercel)
 
@@ -59,9 +60,11 @@ Set up environment protection rules in GitHub:
 - **Protection**: Requires manual approval (environment protection)
 - **Actions**:
   1. Install dependencies
-  2. Push production schema using `pnpm db:push`
+  2. Validate migration files using `drizzle-kit check`
+  3. Run production migrations using `pnpm db:migrate`
   4. Trigger Vercel deployment
-- **Schema sync**: Uses `drizzle-kit push` with production database URL
+- **Validation**: Ensures migration files are consistent and valid before applying
+- **Migration**: Uses `drizzle-kit migrate` with production database URL for deterministic schema changes
 - **Manual approval required** before execution
 
 ## Setup Checklist
@@ -78,9 +81,73 @@ Set up environment protection rules in GitHub:
 ## Notes
 
 - All workflows use `--no-frozen-lockfile` to handle pnpm configuration mismatches
-- Database schema is pushed using `drizzle-kit push` for reliable schema synchronization
+- Database migrations run using `drizzle-kit migrate` for consistent schema changes
 - Production deployments require manual approval for safety
-- `drizzle-kit push` automatically detects and applies only necessary schema changes
+- `drizzle-kit migrate` applies committed migration files for deterministic schema updates
+
+## Best Practice Workflow
+
+### Development (Local)
+```bash
+# 1. Make schema changes in code (db/schema/*)
+# 2. Generate migration file
+pnpm db:generate
+# 3. Review the generated migration
+# 4. Commit both schema changes AND migration files
+git add db/schema/* db/migrations/*
+git commit -m "Add new customer fields"
+```
+
+### CI/CD (Staging & Production)
+```bash
+# Only apply pre-generated, committed migrations
+pnpm db:migrate
+```
+
+**Important Notes:**
+- Never run `pnpm db:generate` in CI/CD pipelines
+- Migration files should be committed to the repository
+- Review generated migrations before committing
+- Both staging and production apply the same migration files
+
+## Golden Rules for Database Operations
+
+### **Rule #1: Don't mix `push` and `migrate` on the same database**
+Once you start using migrations on a database, always use migrations. Mixing approaches causes tracking conflicts.
+
+### **Environment Strategy:**
+- **Local/dev playground**: `pnpm db:push` is OK for quick iteration
+- **Shared/staging/prod**: Only `pnpm db:generate` (commit SQL) → `pnpm db:migrate`
+
+### **Migration vs Push Decision Tree:**
+```
+Is this a shared database (staging/prod)?
+├── YES → Always use db:generate + db:migrate
+└── NO (local dev) → db:push OK for quick iteration
+
+Have you ever run db:migrate on this database?
+├── YES → Always use db:migrate going forward
+└── NO → Either approach is fine initially
+```
+
+## Database Reset (Emergency Only)
+
+### ⚠️ DANGER: Complete Database Reset
+If you need to completely reset a database (e.g., corrupted migration state), use this SQL:
+
+```sql
+-- DANGER: Nukes all user objects in the public schema
+DROP SCHEMA IF EXISTS public CASCADE;
+DROP SCHEMA IF EXISTS drizzle CASCADE;
+CREATE SCHEMA public;
+-- (Re-grant privileges if your platform requires it)
+```
+
+**After reset:**
+1. Run `pnpm db:migrate` to apply all migrations from scratch
+2. Run `pnpm db:seed` to restore sample data (if needed)
+
+**⚠️ WARNING:** This destroys ALL data. Only use in development or as last resort with proper backups.
 
 ## Troubleshooting
 
