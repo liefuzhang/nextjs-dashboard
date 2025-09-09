@@ -42,8 +42,11 @@ jobs:
     - name: Install dependencies
       run: pnpm install --no-frozen-lockfile
 
-    - name: Push production database schema
-      run: pnpm db:push
+    - name: Validate migration files
+      run: pnpm drizzle-kit check --config=drizzle.config.ts
+
+    - name: Run production database migrations
+      run: pnpm db:migrate
       env:
         POSTGRES_URL_NON_POOLING: ${{ secrets.PROD_POSTGRES_URL_NON_POOLING }}
 
