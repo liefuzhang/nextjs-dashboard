@@ -1,9 +1,19 @@
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { db } from "./index";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import * as schema from "./schema";
 import { readdir } from "fs/promises";
 import { join } from "path";
 
 async function runMigrations() {
+  // Create an isolated client so we can close it afterwards to avoid hanging CI jobs
+  const url = process.env.POSTGRES_URL_NON_POOLING ?? process.env.POSTGRES_URL;
+  if (!url) {
+    console.error("❌ Missing POSTGRES_URL or POSTGRES_URL_NON_POOLING env var");
+    process.exit(1);
+  }
+  const client = postgres(url, { ssl: { rejectUnauthorized: false } });
+  const localDb = drizzle(client, { schema });
   try {
     console.log("🚀 Starting database migrations...");
 
@@ -12,8 +22,8 @@ async function runMigrations() {
     const migrationFiles = await readdir(migrationsPath);
     console.log(`📁 Found ${migrationFiles.length} migration files`);
 
-    // Run migrations using postgres-js driver (db/index.ts)
-    await migrate(db, { migrationsFolder: "./db/migrations" });
+    // Run migrations using local postgres-js client
+    await migrate(localDb, { migrationsFolder: "./db/migrations" });
 
     console.log("✅ Migrations completed successfully!");
     console.log("🎉 Database is up to date");
@@ -26,6 +36,13 @@ async function runMigrations() {
     }
 
     process.exit(1);
+  } finally {
+    // Ensure we close the connection to prevent hanging processes in CI
+    try {
+      await client.end({ timeout: 5 });
+    } catch {
+      // ignore
+    }
   }
 }
 
@@ -55,4 +72,3 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       break;
   }
 }
-
