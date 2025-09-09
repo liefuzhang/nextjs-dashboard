@@ -6,7 +6,8 @@ import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 
-const client = postgres(process.env.POSTGRES_URL!, {
+const url = process.env.POSTGRES_URL_NON_POOLING ?? process.env.POSTGRES_URL!;
+const client = postgres(url, {
   ssl: { rejectUnauthorized: false },
 });
 export const db = drizzle(client, { schema });
